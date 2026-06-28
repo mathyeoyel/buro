@@ -3,9 +3,11 @@ import {
   Avatar,
   Button,
   Card,
+  Icon,
   LiveBadge,
   OpenMicBadge,
 } from "../../components";
+import HomeAvatarStack from "./HomeAvatarStack";
 import "./rooms.css";
 
 export default function RoomCard({ room, onJoin }) {
@@ -26,19 +28,30 @@ export default function RoomCard({ room, onJoin }) {
           <LiveBadge />
           <OpenMicBadge />
         </div>
-        <span className="room-card__count">
-          {room.participant_count} in the room
-        </span>
       </div>
 
-      <h3 className="room-card__title">{room.title}</h3>
-      <p className="room-card__category">{room.category}</p>
+      <div className="room-card__head">
+        <Avatar
+          name={room.host?.display_name}
+          src={room.host?.avatar_url || null}
+          size="md"
+        />
+        <div className="room-card__heading">
+          <h3 className="room-card__title">{room.title}</h3>
+          <p className="room-card__category">{room.category}</p>
+        </div>
+      </div>
+
       <p className="room-card__host">Hosted by {room.host?.display_name}</p>
 
       <div className="room-card__footer">
-        <Avatar name={room.host?.display_name} src={room.host?.avatar_url || null} size="sm" />
-        <Button size="sm" variant="secondary" onClick={handleJoin}>
-          Join room
+        <HomeAvatarStack host={room.host} count={room.participant_count} />
+        <Button
+          size="sm"
+          leadingIcon={<Icon name="rooms" size={16} />}
+          onClick={handleJoin}
+        >
+          Join Room
         </Button>
       </div>
     </Card>

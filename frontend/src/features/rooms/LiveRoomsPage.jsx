@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  BuroLogo,
-  Button,
-  EmptyState,
-  Icon,
-  LoadingState,
-} from "../../components";
+import { BuroLogo, Button, Icon, LoadingState } from "../../components";
 import { extractRoomError, getLiveRooms } from "../../services/rooms";
 import RoomCard from "./RoomCard";
 import StartRoomSheet from "./StartRoomSheet";
@@ -61,31 +55,66 @@ export default function LiveRoomsPage() {
 
   return (
     <div className="rooms-page">
-      <div className="rooms-page__header">
-        <BuroLogo size="md" showTagline />
-        <h1 className="rooms-page__heading">Who is jazzing now?</h1>
-        <p className="rooms-page__subtitle">Start or join a live room.</p>
-        <Button
-          size="lg"
-          fullWidth
-          leadingIcon={<Icon name="start" />}
-          onClick={openStartSheet}
-        >
-          Start Jazzing
-        </Button>
+      <div className="rooms-page__topbar">
+        <BuroLogo size="md" />
       </div>
+
+      <section className="home-hero">
+        <div className="home-hero__copy">
+          <h1 className="home-hero__heading">
+            Who is <span className="home-hero__accent">jazzing</span> now?
+          </h1>
+          <p className="home-hero__subtitle">Jump in, listen, laugh and connect.</p>
+          <Button
+            size="lg"
+            fullWidth
+            leadingIcon={<Icon name="start" />}
+            onClick={openStartSheet}
+          >
+            Start Jazzing
+          </Button>
+        </div>
+
+        <div className="home-hero__visual" aria-hidden="true">
+          <span className="home-hero__bubble home-hero__bubble--a" />
+          <span className="home-hero__bubble home-hero__bubble--b" />
+          <span className="home-hero__bubble home-hero__bubble--c" />
+          <span className="home-hero__wave">
+            <Icon name="mic" size={20} />
+          </span>
+          <span className="home-hero__chat home-hero__chat--a">
+            <Icon name="chat" size={16} />
+          </span>
+          <span className="home-hero__chat home-hero__chat--b">
+            <Icon name="react" size={16} />
+          </span>
+          <span className="home-hero__dot home-hero__dot--a" />
+          <span className="home-hero__dot home-hero__dot--b" />
+        </div>
+      </section>
 
       {error && <p className="rooms-page__error">{error}</p>}
 
       <section>
-        <h2 className="rooms-page__section-title">Live now</h2>
+        <h2 className="rooms-page__section-title">Live Rooms</h2>
         {rooms.length === 0 ? (
-          <EmptyState
-            icon={<Icon name="rooms" size={32} />}
-            title="No one is jazzing yet."
-            description="Start jazzing and bring people in."
-            action={<Button onClick={openStartSheet}>Start Jazzing</Button>}
-          />
+          <div className="home-empty">
+            <div className="home-empty__art" aria-hidden="true">
+              <span className="home-empty__bubble home-empty__bubble--a" />
+              <span className="home-empty__bubble home-empty__bubble--b" />
+              <span className="home-empty__icon">
+                <Icon name="mic" size={26} />
+              </span>
+            </div>
+            <h3 className="home-empty__title">No one is jazzing yet.</h3>
+            <p className="home-empty__text">Start the first room and bring people in.</p>
+            <Button
+              leadingIcon={<Icon name="start" />}
+              onClick={openStartSheet}
+            >
+              Start Jazzing
+            </Button>
+          </div>
         ) : (
           <div className="rooms-page__list">
             {rooms.map((room) => (
