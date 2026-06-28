@@ -118,3 +118,6 @@ ROOM_CREATION_ENABLED = True
 
 # Audio provider — see docs/AUDIO_PROVIDER.md
 AUDIO_PROVIDER = os.environ.get("AUDIO_PROVIDER", "mock")
+AGORA_APP_ID = os.environ.get("AGORA_APP_ID", "")
+AGORA_APP_CERTIFICATE = os.environ.get("AGORA_APP_CERTIFICATE", "")
+AGORA_TOKEN_EXPIRES_IN = int(os.environ.get("AGORA_TOKEN_EXPIRES_IN", "3600"))

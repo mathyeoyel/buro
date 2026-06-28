@@ -205,6 +205,7 @@ export default function LiveRoomPage() {
 
   const { status: audioStatus, provider: audioProvider } = useAudioRoom(roomId, {
     enabled: Boolean(room && isParticipant && isLive),
+    isMuted,
   });
 
   const audioLabel = audioStatusLabel(audioStatus, audioProvider);
@@ -389,7 +390,7 @@ export default function LiveRoomPage() {
             statusText={isMuted ? "Tap to talk" : "You're live"}
           />
           <p className="live-room__audio-status">{audioLabel}</p>
-          <p>{isMuted ? "Muted — tap the mic when you're ready." : "You're on mic (UI only for now)."}</p>
+          <p>{isMuted ? "Muted — tap the mic when you're ready." : "You're live on mic."}</p>
         </div>
       )}
 

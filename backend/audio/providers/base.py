@@ -15,6 +15,8 @@ class ProviderToken:
     ws_url: str | None
     connection_url: str | None
     expires_in: int
+    app_id: str | None = None
+    uid: int | None = None
 
 
 class AudioProvider(ABC):

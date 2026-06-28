@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 
 from rooms.models import Room
 
+from .exceptions import AudioProviderConfigurationError
 from .serializers import AudioTokenSerializer
 from .services import issue_audio_token
 
@@ -15,6 +16,10 @@ class RoomAudioTokenView(APIView):
 
     def post(self, request, room_id):
         room = get_object_or_404(Room, pk=room_id)
-        token = issue_audio_token(request.user, room)
+        try:
+            token = issue_audio_token(request.user, room)
+        except AudioProviderConfigurationError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
         serializer = AudioTokenSerializer.from_provider_token(token)
         return Response({"audio": serializer.data}, status=status.HTTP_200_OK)
