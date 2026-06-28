@@ -190,6 +190,14 @@
   max-width: 28ch;
 }
 
+.live-room__audio-status {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
 .live-room__actions {
   display: flex;
   flex-direction: column;

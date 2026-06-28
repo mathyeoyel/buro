@@ -12,6 +12,7 @@ import {
   OpenMicBadge,
 } from "../../components";
 import { useAuth } from "../../context/AuthContext";
+import { audioStatusLabel, useAudioRoom } from "../../hooks/useAudioRoom";
 import { useRoomSocket } from "../../hooks/useRoomSocket";
 import {
   endRoom,
@@ -202,6 +203,12 @@ export default function LiveRoomPage() {
     onEvent: handleSocketEvent,
   });
 
+  const { status: audioStatus, provider: audioProvider } = useAudioRoom(roomId, {
+    enabled: Boolean(room && isParticipant && isLive),
+  });
+
+  const audioLabel = audioStatusLabel(audioStatus, audioProvider);
+
   const loadChat = useCallback(async () => {
     setChatLoading(true);
     try {
@@ -381,6 +388,7 @@ export default function LiveRoomPage() {
             onClick={handleToggleMute}
             statusText={isMuted ? "Tap to talk" : "You're live"}
           />
+          <p className="live-room__audio-status">{audioLabel}</p>
           <p>{isMuted ? "Muted — tap the mic when you're ready." : "You're on mic (UI only for now)."}</p>
         </div>
       )}

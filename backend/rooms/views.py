@@ -152,6 +152,11 @@ class EndRoomView(APIView):
         room = get_object_or_404(Room, pk=room_id)
         end_room(request.user, room)
         room.refresh_from_db()
+
+        from audio.services import end_audio_for_room
+
+        end_audio_for_room(room)
+
         broadcast_room_ended(room.id, room, request=request)
         serializer = RoomSerializer(room, context={"request": request})
         return Response({"room": serializer.data})

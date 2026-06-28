@@ -1,5 +1,6 @@
 from django.urls import path
 
+from audio.views import RoomAudioTokenView
 from chat.views import RoomMessagesView
 from reactions.views import RoomReactionsView
 
@@ -15,4 +16,5 @@ urlpatterns = [
     path("rooms/<int:room_id>/end/", views.EndRoomView.as_view(), name="rooms-end"),
     path("rooms/<int:room_id>/messages/", RoomMessagesView.as_view(), name="rooms-messages"),
     path("rooms/<int:room_id>/reactions/", RoomReactionsView.as_view(), name="rooms-reactions"),
+    path("rooms/<int:room_id>/audio-token/", RoomAudioTokenView.as_view(), name="rooms-audio-token"),
 ]
