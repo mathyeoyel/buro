@@ -19,6 +19,25 @@ def participant_count(room):
     return active_participants(room).count()
 
 
+def get_active_participant(user, room):
+    return RoomParticipant.objects.filter(
+        room=room,
+        user=user,
+        left_at__isnull=True,
+        is_removed=False,
+    ).first()
+
+
+def assert_can_interact_in_room(user, room):
+    """User must be an active participant and the room must be live."""
+    if not room.is_live:
+        raise ValidationError({"detail": "This room has ended."})
+    participant = get_active_participant(user, room)
+    if not participant:
+        raise PermissionDenied("You must be in the room.")
+    return participant
+
+
 def user_daily_room_count(user):
     today = timezone.now().date()
     return Room.objects.filter(host=user, created_at__date=today).count()

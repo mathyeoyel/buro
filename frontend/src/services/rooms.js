@@ -39,6 +39,23 @@ export async function setMuted(roomId, muted) {
   return response.data.participant;
 }
 
+export async function getRoomMessages(roomId) {
+  const response = await api.get(`/rooms/${roomId}/messages/`);
+  return response.data.messages;
+}
+
+export async function sendRoomMessage(roomId, body) {
+  const response = await api.post(`/rooms/${roomId}/messages/`, { body });
+  return response.data.message;
+}
+
+export async function sendRoomReaction(roomId, reactionType) {
+  const response = await api.post(`/rooms/${roomId}/reactions/`, {
+    reaction_type: reactionType,
+  });
+  return response.data.reaction;
+}
+
 export function extractRoomError(error) {
   const data = error?.response?.data;
   if (!data) return "Something went wrong. Try again.";

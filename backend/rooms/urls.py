@@ -1,5 +1,8 @@
 from django.urls import path
 
+from chat.views import RoomMessagesView
+from reactions.views import RoomReactionsView
+
 from . import views
 
 urlpatterns = [
@@ -10,4 +13,6 @@ urlpatterns = [
     path("rooms/<int:room_id>/leave/", views.LeaveRoomView.as_view(), name="rooms-leave"),
     path("rooms/<int:room_id>/mute/", views.MuteRoomView.as_view(), name="rooms-mute"),
     path("rooms/<int:room_id>/end/", views.EndRoomView.as_view(), name="rooms-end"),
+    path("rooms/<int:room_id>/messages/", RoomMessagesView.as_view(), name="rooms-messages"),
+    path("rooms/<int:room_id>/reactions/", RoomReactionsView.as_view(), name="rooms-reactions"),
 ]

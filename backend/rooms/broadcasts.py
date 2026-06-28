@@ -96,3 +96,11 @@ def broadcast_room_ended(room_id, room, request=None):
             "ended_at": room.ended_at.isoformat().replace("+00:00", "Z") if room.ended_at else None,
         },
     )
+
+
+def broadcast_chat_message(room_id, message_data):
+    broadcast_room_event(room_id, "chat.message", {"message": message_data})
+
+
+def broadcast_reaction_sent(room_id, reaction_data):
+    broadcast_room_event(room_id, "reaction.sent", {"reaction": reaction_data})

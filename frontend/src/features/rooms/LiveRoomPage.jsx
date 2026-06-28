@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Avatar,
   BottomSheet,
   Button,
+  FloatingReaction,
   Input,
   LiveBadge,
   LoadingState,
@@ -16,12 +17,29 @@ import {
   endRoom,
   extractRoomError,
   getRoom,
+  getRoomMessages,
   joinRoom,
   leaveRoom,
+  sendRoomMessage,
+  sendRoomReaction,
   setMuted,
   updateRoom,
 } from "../../services/rooms";
+import RoomChatSheet from "./RoomChatSheet";
 import "./rooms.css";
+
+const MAX_MESSAGES = 50;
+const REACTION_OPTIONS = [
+  { type: "laugh", label: "Laugh", emoji: "😂" },
+  { type: "clap", label: "Clap", emoji: "👏" },
+  { type: "fire", label: "Fire", emoji: "🔥" },
+  { type: "love", label: "Love", emoji: "❤️" },
+  { type: "shock", label: "Shock", emoji: "😮" },
+];
+
+const REACTION_EMOJI = Object.fromEntries(
+  REACTION_OPTIONS.map((option) => [option.type, option.emoji])
+);
 
 function upsertParticipant(participants, participant) {
   const list = participants ?? [];
@@ -30,6 +48,12 @@ function upsertParticipant(participants, participant) {
   const next = [...list];
   next[idx] = { ...next[idx], ...participant };
   return next;
+}
+
+function appendMessage(messages, message, max = MAX_MESSAGES) {
+  if (messages.some((item) => item.id === message.id)) return messages;
+  const next = [...messages, message];
+  return next.length > max ? next.slice(-max) : next;
 }
 
 function applyRoomEvent(prev, event) {
@@ -106,6 +130,16 @@ export default function LiveRoomPage() {
   const [showEdit, setShowEdit] = useState(false);
   const [editForm, setEditForm] = useState({ title: "", category: "" });
 
+  const [showChat, setShowChat] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatSending, setChatSending] = useState(false);
+  const [messages, setMessages] = useState([]);
+
+  const [showReactions, setShowReactions] = useState(false);
+  const [reactionSending, setReactionSending] = useState(false);
+  const [floatingReactions, setFloatingReactions] = useState([]);
+  const seenReactionsRef = useRef(new Set());
+
   const loadRoom = useCallback(async () => {
     setError("");
     try {
@@ -123,9 +157,36 @@ export default function LiveRoomPage() {
     loadRoom();
   }, [loadRoom]);
 
-  const handleSocketEvent = useCallback((event) => {
-    setRoom((prev) => applyRoomEvent(prev, event));
+  const addFloatingReaction = useCallback((reaction) => {
+    const reactionId = reaction?.id;
+    if (reactionId != null) {
+      if (seenReactionsRef.current.has(reactionId)) return;
+      seenReactionsRef.current.add(reactionId);
+    }
+    const key = reactionId ?? `local-${Date.now()}-${Math.random()}`;
+    const emoji = REACTION_EMOJI[reaction.reaction_type] ?? "✨";
+    const left = 20 + Math.random() * 60;
+    setFloatingReactions((prev) => [...prev, { key, emoji, left }]);
+    setTimeout(() => {
+      setFloatingReactions((prev) => prev.filter((item) => item.key !== key));
+      if (reactionId != null) seenReactionsRef.current.delete(reactionId);
+    }, 2500);
   }, []);
+
+  const handleSocketEvent = useCallback(
+    (event) => {
+      if (event.type === "chat.message") {
+        setMessages((prev) => appendMessage(prev, event.payload.message));
+        return;
+      }
+      if (event.type === "reaction.sent") {
+        addFloatingReaction(event.payload.reaction);
+        return;
+      }
+      setRoom((prev) => applyRoomEvent(prev, event));
+    },
+    [addFloatingReaction]
+  );
 
   const isHost = room?.current_user_role === "host";
   const isParticipant = room?.current_user_is_participant;
@@ -134,11 +195,57 @@ export default function LiveRoomPage() {
 
   const currentParticipant = room?.participants?.find((p) => p.id === user?.id);
   const isMuted = currentParticipant?.is_muted ?? true;
+  const socialDisabled = !isParticipant || isEnded;
 
   useRoomSocket(roomId, {
     enabled: Boolean(room && isParticipant && isLive),
     onEvent: handleSocketEvent,
   });
+
+  const loadChat = useCallback(async () => {
+    setChatLoading(true);
+    try {
+      const data = await getRoomMessages(roomId);
+      setMessages(data);
+    } catch (err) {
+      setError(extractRoomError(err));
+    } finally {
+      setChatLoading(false);
+    }
+  }, [roomId]);
+
+  const handleOpenChat = () => {
+    setShowChat(true);
+    loadChat();
+  };
+
+  const handleSendMessage = async (body) => {
+    setChatSending(true);
+    setError("");
+    try {
+      const message = await sendRoomMessage(roomId, body);
+      setMessages((prev) => appendMessage(prev, message));
+    } catch (err) {
+      setError(extractRoomError(err));
+    } finally {
+      setChatSending(false);
+    }
+  };
+
+  const handleSendReaction = async (reactionType) => {
+    if (socialDisabled || reactionSending) return;
+    setReactionSending(true);
+    setError("");
+    try {
+      const reaction = await sendRoomReaction(roomId, reactionType);
+      addFloatingReaction(reaction);
+      setShowReactions(false);
+    } catch (err) {
+      setError(extractRoomError(err));
+    } finally {
+      setReactionSending(false);
+    }
+  };
 
   const runAction = async (action) => {
     setActionLoading(true);
@@ -211,7 +318,17 @@ export default function LiveRoomPage() {
   const actionsDisabled = isEnded || actionLoading;
 
   return (
-    <div className="live-room">
+    <div className="live-room live-room--with-reactions">
+      <div className="live-room__reactions-layer" aria-hidden="true">
+        {floatingReactions.map((reaction) => (
+          <FloatingReaction
+            key={reaction.key}
+            emoji={reaction.emoji}
+            style={{ left: `${reaction.left}%` }}
+          />
+        ))}
+      </div>
+
       <div className="live-room__header">
         <h1 className="live-room__title">{room.title}</h1>
         <div className="live-room__meta">
@@ -268,6 +385,44 @@ export default function LiveRoomPage() {
         </div>
       )}
 
+      {isParticipant && (
+        <div className="live-room__social">
+          <Button
+            variant="secondary"
+            fullWidth
+            disabled={socialDisabled}
+            onClick={handleOpenChat}
+          >
+            Chat
+          </Button>
+          <Button
+            variant="secondary"
+            fullWidth
+            disabled={socialDisabled}
+            onClick={() => setShowReactions((open) => !open)}
+          >
+            React
+          </Button>
+        </div>
+      )}
+
+      {showReactions && isParticipant && !isEnded && (
+        <div className="live-room__reaction-picker">
+          {REACTION_OPTIONS.map((option) => (
+            <button
+              key={option.type}
+              type="button"
+              className="live-room__reaction-btn"
+              disabled={reactionSending}
+              aria-label={option.label}
+              onClick={() => handleSendReaction(option.type)}
+            >
+              <span aria-hidden="true">{option.emoji}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {error && <p className="rooms-page__error">{error}</p>}
 
       <div className="live-room__actions">
@@ -310,6 +465,16 @@ export default function LiveRoomPage() {
           Back to rooms
         </Button>
       </div>
+
+      <BottomSheet open={showChat} onClose={() => setShowChat(false)} title="Room chat">
+        <RoomChatSheet
+          messages={messages}
+          loading={chatLoading}
+          sending={chatSending}
+          disabled={socialDisabled}
+          onSend={handleSendMessage}
+        />
+      </BottomSheet>
 
       <BottomSheet
         open={showEdit && isLive}
