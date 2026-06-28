@@ -1,15 +1,19 @@
 import axios from "axios";
 
-// NOTE: `withCredentials` is intentionally OFF for now.
-// The MVP has no authenticated/cookie-based endpoints yet, and enabling it
-// breaks simple CORS reads unless the backend also sends
-// `Access-Control-Allow-Credentials: true` (django-cors-headers default is off).
-// Re-enable this together with `CORS_ALLOW_CREDENTIALS = True` when session auth lands.
+// Token auth only — withCredentials stays OFF (no cookie sessions).
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+export function setAuthToken(token) {
+  if (token) {
+    api.defaults.headers.common.Authorization = `Token ${token}`;
+  } else {
+    delete api.defaults.headers.common.Authorization;
+  }
+}
 
 export default api;

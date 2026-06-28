@@ -1,0 +1,84 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { BuroLogo, Button, Input } from "../../components";
+import { useAuth } from "../../context/AuthContext";
+import "./AuthForm.css";
+
+export default function SignupPage() {
+  const { signup, extractErrorMessage } = useAuth();
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", password: "", display_name: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await signup(form);
+      navigate("/", { replace: true });
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-page__header">
+        <BuroLogo size="lg" showTagline />
+        <h1 className="auth-page__title">Create your account</h1>
+        <p className="auth-page__subtitle">Sign up and start jazzing in seconds.</p>
+      </div>
+
+      <form className="auth-form" onSubmit={handleSubmit}>
+        {error && <p className="auth-form__error">{error}</p>}
+
+        <Input
+          label="Display name"
+          name="display_name"
+          value={form.display_name}
+          onChange={handleChange}
+          placeholder="What should we call you?"
+          required
+          autoComplete="name"
+        />
+        <Input
+          label="Email"
+          name="email"
+          type="email"
+          value={form.email}
+          onChange={handleChange}
+          placeholder="you@example.com"
+          required
+          autoComplete="email"
+        />
+        <Input
+          label="Password"
+          name="password"
+          type="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder="At least 8 characters"
+          required
+          minLength={8}
+          autoComplete="new-password"
+        />
+
+        <Button type="submit" size="lg" fullWidth disabled={loading}>
+          {loading ? "Creating account…" : "Start Jazzing"}
+        </Button>
+      </form>
+
+      <p className="auth-form__footer">
+        Already have an account? <Link to="/login">Sign in</Link>
+      </p>
+    </div>
+  );
+}
