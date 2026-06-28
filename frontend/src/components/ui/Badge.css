@@ -22,18 +22,18 @@
   color: var(--color-text-secondary);
 }
 .buro-badge--orange {
-  background-color: rgba(245, 158, 11, 0.16);
+  background-color: var(--color-orange-surface);
   color: var(--color-orange);
 }
 .buro-badge--green {
-  background-color: rgba(34, 197, 94, 0.16);
+  background-color: var(--color-live-surface);
   color: var(--color-green);
 }
 .buro-badge--brown {
-  background-color: rgba(122, 74, 29, 0.28);
-  color: #d8a26a;
+  background-color: var(--color-brown-surface);
+  color: var(--color-brown-text);
 }
 .buro-badge--danger {
-  background-color: rgba(239, 68, 68, 0.16);
+  background-color: var(--color-danger-surface);
   color: var(--color-danger);
 }

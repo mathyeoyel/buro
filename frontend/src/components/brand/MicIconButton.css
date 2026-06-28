@@ -31,7 +31,7 @@
 }
 
 .buro-mic--live {
-  background-color: rgba(34, 197, 94, 0.16);
+  background-color: var(--color-live-surface);
   border-color: var(--color-green);
   color: var(--color-green);
 }

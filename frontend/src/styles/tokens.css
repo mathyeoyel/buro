@@ -1,46 +1,19 @@
 /**
  * Buro design tokens — see docs/VISUAL_IDENTITY.md
- * Warm, playful, local, audio-first. Soft cream on deep charcoal.
+ * Warm, playful, local, audio-first.
  *
  * UI RULE: NO GRADIENTS. Use flat solid colors only.
- * No linear-gradient / radial-gradient / gradient-like backgrounds anywhere.
- * Borders, shadows, spacing, opacity, and solid-color surfaces only.
+ * Theme switching via data-theme on document.documentElement.
  */
+
+/* --- Brand palette (shared across themes) --- */
 :root {
-  /* --- Brand palette --- */
   --color-charcoal: #171717;
   --color-orange: #f59e0b;
   --color-brown: #7a4a1d;
   --color-cream: #fff7e8;
   --color-green: #22c55e;
   --color-red: #ef4444;
-
-  /* --- Semantic roles --- */
-  --color-brand-primary: var(--color-orange);
-  --color-brand-accent: var(--color-brown);
-
-  /* Surfaces (warm dark base) */
-  --color-bg-base: var(--color-charcoal);
-  --color-bg-elevated: #1f1d1a;
-  --color-bg-muted: #2a2723;
-  --color-bg-cream: var(--color-cream);
-
-  /* Text */
-  --color-text-primary: var(--color-cream);
-  --color-text-secondary: #d9cdba;
-  --color-text-muted: #9a8f7e;
-  --color-text-on-orange: #2a1a05;
-  --color-text-on-cream: var(--color-charcoal);
-
-  /* Status */
-  --color-live: var(--color-green);
-  --color-danger: var(--color-red);
-  --color-muted-state: #8a8a8a;
-
-  /* Borders & focus */
-  --color-border: #3a352e;
-  --color-border-strong: #4a443b;
-  --color-focus: var(--color-orange);
 
   /* --- Typography --- */
   --font-family-heading: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -77,12 +50,6 @@
   --radius-xl: 1.5rem;
   --radius-full: 9999px;
 
-  /* --- Shadows --- */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
-  --shadow-glow: 0 0 0 4px rgba(245, 158, 11, 0.25);
-
   /* --- Layout --- */
   --touch-target-min: 44px;
   --mobile-max-width: 480px;
@@ -95,4 +62,129 @@
   --z-sheet: 1000;
   --z-nav: 100;
   --z-floating: 200;
+}
+
+/* --- Dark theme (default Buro look) --- */
+:root,
+[data-theme="dark"] {
+  /* Semantic roles */
+  --color-brand-primary: var(--color-orange);
+  --color-brand-accent: var(--color-brown);
+  --color-primary: var(--color-orange);
+  --color-primary-strong: #ffb31f;
+  --color-accent: var(--color-brown);
+
+  /* Background & surfaces */
+  --color-bg-base: var(--color-charcoal);
+  --color-bg-elevated: #1f1d1a;
+  --color-bg-muted: #2a2723;
+  --color-bg-cream: var(--color-cream);
+  --color-surface: var(--color-bg-elevated);
+  --color-surface-muted: var(--color-bg-muted);
+
+  /* Text */
+  --color-text-primary: var(--color-cream);
+  --color-text-secondary: #d9cdba;
+  --color-text-muted: #9a8f7e;
+  --color-text-on-orange: #2a1a05;
+  --color-text-on-cream: var(--color-charcoal);
+  --color-text-on-danger: #ffffff;
+
+  /* Status */
+  --color-live: var(--color-green);
+  --color-danger: var(--color-red);
+  --color-muted-state: #8a8a8a;
+
+  /* Borders & focus */
+  --color-border: #3a352e;
+  --color-border-strong: #4a443b;
+  --color-focus: var(--color-orange);
+
+  /* Component surfaces */
+  --color-btn-primary-bg: var(--color-orange);
+  --color-btn-primary-hover: #ffb31f;
+  --color-btn-secondary-bg: var(--color-bg-muted);
+  --color-btn-secondary-hover: #34302a;
+  --color-btn-danger-bg: var(--color-danger);
+  --color-btn-danger-hover: #f25c5c;
+  --color-input-bg: var(--color-bg-base);
+  --color-input-border: var(--color-border-strong);
+  --color-nav-bg: var(--color-bg-elevated);
+  --color-nav-active: var(--color-orange);
+
+  /* Tinted status surfaces */
+  --color-live-surface: rgba(34, 197, 94, 0.16);
+  --color-orange-surface: rgba(245, 158, 11, 0.16);
+  --color-brown-surface: rgba(122, 74, 29, 0.28);
+  --color-brown-text: #d8a26a;
+  --color-danger-surface: rgba(239, 68, 68, 0.12);
+  --color-danger-border: rgba(239, 68, 68, 0.35);
+  --color-danger-text: #fca5a5;
+  --color-overlay: rgba(0, 0, 0, 0.6);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 0 4px rgba(245, 158, 11, 0.25);
+  --shadow-live-pulse: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  --shadow-live-pulse-end: 0 0 0 4px rgba(34, 197, 94, 0);
+}
+
+/* --- Light theme (basic, brand-aligned) --- */
+[data-theme="light"] {
+  --color-brand-primary: var(--color-orange);
+  --color-brand-accent: var(--color-brown);
+  --color-primary: var(--color-orange);
+  --color-primary-strong: #d97706;
+  --color-accent: var(--color-brown);
+
+  --color-bg-base: var(--color-cream);
+  --color-bg-elevated: #fffdf8;
+  --color-bg-muted: #f5ead8;
+  --color-bg-cream: var(--color-cream);
+  --color-surface: var(--color-bg-elevated);
+  --color-surface-muted: var(--color-bg-muted);
+
+  --color-text-primary: var(--color-charcoal);
+  --color-text-secondary: #4a443b;
+  --color-text-muted: #7a7268;
+  --color-text-on-orange: #2a1a05;
+  --color-text-on-cream: var(--color-charcoal);
+  --color-text-on-danger: #ffffff;
+
+  --color-live: var(--color-green);
+  --color-danger: var(--color-red);
+  --color-muted-state: #9a9a9a;
+
+  --color-border: #e8dcc8;
+  --color-border-strong: #d4c4a8;
+  --color-focus: var(--color-orange);
+
+  --color-btn-primary-bg: var(--color-orange);
+  --color-btn-primary-hover: #d97706;
+  --color-btn-secondary-bg: var(--color-bg-muted);
+  --color-btn-secondary-hover: #ebe0cc;
+  --color-btn-danger-bg: var(--color-danger);
+  --color-btn-danger-hover: #dc2626;
+  --color-input-bg: #ffffff;
+  --color-input-border: var(--color-border-strong);
+  --color-nav-bg: var(--color-bg-elevated);
+  --color-nav-active: var(--color-orange);
+
+  --color-live-surface: rgba(34, 197, 94, 0.12);
+  --color-orange-surface: rgba(245, 158, 11, 0.14);
+  --color-brown-surface: rgba(122, 74, 29, 0.12);
+  --color-brown-text: var(--color-brown);
+  --color-danger-surface: rgba(239, 68, 68, 0.1);
+  --color-danger-border: rgba(239, 68, 68, 0.3);
+  --color-danger-text: #b91c1c;
+  --color-overlay: rgba(23, 23, 23, 0.45);
+
+  --shadow-sm: 0 1px 2px rgba(23, 23, 23, 0.08);
+  --shadow-md: 0 4px 16px rgba(23, 23, 23, 0.1);
+  --shadow-lg: 0 12px 32px rgba(23, 23, 23, 0.12);
+  --shadow-glow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+  --shadow-live-pulse: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  --shadow-live-pulse-end: 0 0 0 4px rgba(34, 197, 94, 0);
 }

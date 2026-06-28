@@ -10,7 +10,7 @@
 .buro-sheet__backdrop {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: var(--color-overlay);
   animation: buro-fade-in var(--transition-base);
 }
 

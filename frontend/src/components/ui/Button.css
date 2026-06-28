@@ -44,20 +44,20 @@
 
 /* Variants */
 .buro-btn--primary {
-  background-color: var(--color-orange);
+  background-color: var(--color-btn-primary-bg);
   color: var(--color-text-on-orange);
 }
 .buro-btn--primary:hover:not(:disabled) {
-  background-color: #ffb31f;
+  background-color: var(--color-btn-primary-hover);
 }
 
 .buro-btn--secondary {
-  background-color: var(--color-bg-muted);
+  background-color: var(--color-btn-secondary-bg);
   color: var(--color-text-primary);
   border-color: var(--color-border-strong);
 }
 .buro-btn--secondary:hover:not(:disabled) {
-  background-color: #34302a;
+  background-color: var(--color-btn-secondary-hover);
 }
 
 .buro-btn--ghost {
@@ -69,11 +69,11 @@
 }
 
 .buro-btn--danger {
-  background-color: var(--color-danger);
-  color: #fff;
+  background-color: var(--color-btn-danger-bg);
+  color: var(--color-text-on-danger);
 }
 .buro-btn--danger:hover:not(:disabled) {
-  background-color: #f25c5c;
+  background-color: var(--color-btn-danger-hover);
 }
 
 .buro-btn__icon {

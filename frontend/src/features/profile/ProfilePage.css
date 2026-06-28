@@ -38,6 +38,23 @@
   gap: var(--space-sm);
 }
 
+.profile-page__theme {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.profile-page__theme-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
 .profile-page__meta {
   display: flex;
   flex-direction: column;

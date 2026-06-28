@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { Avatar, Button, Icon } from "../../components";
 import { useAuth } from "../../context/AuthContext";
+import useTheme from "../../theme/useTheme";
 import "./ProfilePage.css";
 
 export default function ProfilePage() {
   const { user, profile, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -27,6 +29,12 @@ export default function ProfilePage() {
       </div>
 
       <div className="profile-page__actions">
+        <div className="profile-page__theme">
+          <span className="profile-page__theme-label">Theme</span>
+          <Button variant="secondary" size="sm" onClick={toggleTheme}>
+            {isDark ? "Switch to Light" : "Switch to Dark"}
+          </Button>
+        </div>
         <Button variant="secondary" fullWidth onClick={() => navigate("/profile/edit")}>
           Edit profile
         </Button>

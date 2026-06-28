@@ -1,27 +1,27 @@
+import useTheme from "../../theme/useTheme";
 import "./BuroLogo.css";
 
 /**
  * Single source for rendering the Buro logo using the approved brand assets.
  *
- * - variant "onDark" (default) uses /brand/logo-dark.svg (cream wordmark) for
- *   Buro's charcoal surfaces.
- * - variant "onLight" uses /brand/logo.svg (charcoal wordmark) for cream/light
- *   surfaces.
+ * - variant "onDark" uses /brand/logo-dark.svg (cream wordmark) for dark surfaces.
+ * - variant "onLight" uses /brand/logo.svg (charcoal wordmark) for light surfaces.
+ * - When variant is omitted, it follows the active theme automatically.
  * - mark renders the compact /brand/icon.svg square mark for tight spaces.
- *
- * sizes: sm | md | lg  (controls wordmark height)
- * showTagline: render "Start jazzing." beneath the wordmark.
  */
 const HEIGHTS = { sm: 20, md: 28, lg: 40 };
 const MARK_SIZES = { sm: 24, md: 32, lg: 44 };
 
 export default function BuroLogo({
   size = "md",
-  variant = "onDark",
+  variant,
   mark = false,
   showTagline = false,
   className = "",
 }) {
+  const { isDark } = useTheme();
+  const resolvedVariant = variant ?? (isDark ? "onDark" : "onLight");
+
   if (mark) {
     const dimension = MARK_SIZES[size] ?? MARK_SIZES.md;
     return (
@@ -37,7 +37,7 @@ export default function BuroLogo({
   }
 
   const height = HEIGHTS[size] ?? HEIGHTS.md;
-  const src = variant === "onLight" ? "/brand/logo.svg" : "/brand/logo-dark.svg";
+  const src = resolvedVariant === "onLight" ? "/brand/logo.svg" : "/brand/logo-dark.svg";
 
   return (
     <span className={["buro-logo", `buro-logo--${size}`, className].filter(Boolean).join(" ")}>
