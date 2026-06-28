@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { BuroLogo, Button, Icon, LoadingState } from "../../components";
+import { Button, Icon, LoadingState } from "../../components";
 import { extractRoomError, getLiveRooms } from "../../services/rooms";
 import RoomCard from "./RoomCard";
 import StartRoomSheet from "./StartRoomSheet";
@@ -55,10 +55,6 @@ export default function LiveRoomsPage() {
 
   return (
     <div className="rooms-page">
-      <div className="rooms-page__topbar">
-        <BuroLogo size="md" />
-      </div>
-
       <section className="home-hero">
         <div className="home-hero__copy">
           <h1 className="home-hero__heading">
@@ -71,7 +67,7 @@ export default function LiveRoomsPage() {
             leadingIcon={<Icon name="start" />}
             onClick={openStartSheet}
           >
-            Start Jazzing
+            Start a Buro
           </Button>
         </div>
 
@@ -112,7 +108,7 @@ export default function LiveRoomsPage() {
               leadingIcon={<Icon name="start" />}
               onClick={openStartSheet}
             >
-              Start Jazzing
+              Start a Buro
             </Button>
           </div>
         ) : (

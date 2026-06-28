@@ -43,14 +43,6 @@
   font-size: var(--font-size-sm);
 }
 
-/* Home topbar */
-.rooms-page__topbar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: var(--space-sm);
-}
-
 /* Home hero */
 .home-hero {
   display: flex;
