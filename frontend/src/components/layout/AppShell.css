@@ -1,0 +1,15 @@
+.buro-appshell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-base);
+}
+
+.buro-appshell__trailing {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}

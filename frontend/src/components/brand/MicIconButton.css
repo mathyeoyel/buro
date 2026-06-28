@@ -1,0 +1,47 @@
+.buro-mic {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast), background-color var(--transition-base);
+}
+
+.buro-mic:active {
+  transform: scale(0.95);
+}
+
+.buro-mic--lg {
+  width: 88px;
+  height: 88px;
+}
+
+.buro-mic--md {
+  width: 64px;
+  height: 64px;
+}
+
+.buro-mic--muted {
+  background-color: var(--color-bg-muted);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+
+.buro-mic--live {
+  background-color: rgba(34, 197, 94, 0.16);
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+
+.buro-mic__glyph {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.buro-mic__text {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}

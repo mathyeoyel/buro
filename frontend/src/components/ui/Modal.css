@@ -1,0 +1,53 @@
+.buro-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.buro-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  animation: buro-fade-in var(--transition-base);
+}
+
+.buro-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 26rem;
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-lg);
+  animation: buro-pop-in var(--transition-base);
+}
+
+.buro-modal__title {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-md);
+}
+
+.buro-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+@keyframes buro-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes buro-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}

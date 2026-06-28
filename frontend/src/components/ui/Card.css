@@ -1,0 +1,20 @@
+.buro-card {
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.buro-card--elevated {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.buro-card--flat {
+  background-color: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+}
+
+.buro-card--cream {
+  background-color: var(--color-bg-cream);
+  color: var(--color-text-on-cream);
+}

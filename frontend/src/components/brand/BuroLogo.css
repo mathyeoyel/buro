@@ -1,0 +1,78 @@
+.buro-logo {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.buro-logo__row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.buro-logo__word {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-cream);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.buro-logo__pulse {
+  border-radius: var(--radius-full);
+  background-color: var(--color-orange);
+  flex-shrink: 0;
+  animation: buro-logo-pulse 2s ease-in-out infinite;
+}
+
+.buro-logo__tagline {
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+/* Sizes */
+.buro-logo--sm .buro-logo__word {
+  font-size: var(--font-size-lg);
+}
+.buro-logo--sm .buro-logo__pulse {
+  width: 8px;
+  height: 8px;
+}
+.buro-logo--sm .buro-logo__tagline {
+  font-size: var(--font-size-xs);
+}
+
+.buro-logo--md .buro-logo__word {
+  font-size: var(--font-size-xl);
+}
+.buro-logo--md .buro-logo__pulse {
+  width: 10px;
+  height: 10px;
+}
+.buro-logo--md .buro-logo__tagline {
+  font-size: var(--font-size-sm);
+}
+
+.buro-logo--lg .buro-logo__word {
+  font-size: var(--font-size-3xl);
+}
+.buro-logo--lg .buro-logo__pulse {
+  width: 16px;
+  height: 16px;
+}
+.buro-logo--lg .buro-logo__tagline {
+  font-size: var(--font-size-base);
+}
+
+@keyframes buro-logo-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}

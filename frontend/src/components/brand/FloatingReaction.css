@@ -1,0 +1,23 @@
+.buro-floating-reaction {
+  position: absolute;
+  bottom: 0;
+  font-size: 1.5rem;
+  pointer-events: none;
+  z-index: var(--z-floating);
+  animation: buro-float-up 2.4s ease-out forwards;
+}
+
+@keyframes buro-float-up {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120px) scale(1.1);
+  }
+}

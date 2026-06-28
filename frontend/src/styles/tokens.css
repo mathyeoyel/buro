@@ -1,0 +1,94 @@
+/**
+ * Buro design tokens — see docs/VISUAL_IDENTITY.md
+ * Warm, playful, local, audio-first. Soft cream on deep charcoal.
+ */
+:root {
+  /* --- Brand palette --- */
+  --color-charcoal: #171717;
+  --color-orange: #f59e0b;
+  --color-brown: #7a4a1d;
+  --color-cream: #fff7e8;
+  --color-green: #22c55e;
+  --color-red: #ef4444;
+
+  /* --- Semantic roles --- */
+  --color-brand-primary: var(--color-orange);
+  --color-brand-accent: var(--color-brown);
+
+  /* Surfaces (warm dark base) */
+  --color-bg-base: var(--color-charcoal);
+  --color-bg-elevated: #1f1d1a;
+  --color-bg-muted: #2a2723;
+  --color-bg-cream: var(--color-cream);
+
+  /* Text */
+  --color-text-primary: var(--color-cream);
+  --color-text-secondary: #d9cdba;
+  --color-text-muted: #9a8f7e;
+  --color-text-on-orange: #2a1a05;
+  --color-text-on-cream: var(--color-charcoal);
+
+  /* Status */
+  --color-live: var(--color-green);
+  --color-danger: var(--color-red);
+  --color-muted-state: #8a8a8a;
+
+  /* Borders & focus */
+  --color-border: #3a352e;
+  --color-border-strong: #4a443b;
+  --color-focus: var(--color-orange);
+
+  /* --- Typography --- */
+  --font-family-heading: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-size-3xl: 2.75rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.15;
+  --line-height-base: 1.5;
+
+  /* --- Spacing --- */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* --- Radius --- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* --- Shadows --- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 0 4px rgba(245, 158, 11, 0.25);
+
+  /* --- Layout --- */
+  --touch-target-min: 44px;
+  --mobile-max-width: 480px;
+  --bottom-nav-height: 64px;
+
+  /* --- Motion --- */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --z-modal: 1000;
+  --z-sheet: 1000;
+  --z-nav: 100;
+  --z-floating: 200;
+}

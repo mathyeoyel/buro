@@ -1,0 +1,112 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl);
+}
+
+.home__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-lg);
+  padding-top: var(--space-xl);
+}
+
+.home__lead {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
+  max-width: 22rem;
+}
+
+.home__preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.home__preview-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Mock room card */
+.mock-room {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.mock-room__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.mock-room__badges {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.mock-room__count {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.mock-room__title {
+  font-size: var(--font-size-lg);
+  margin-top: var(--space-xs);
+}
+
+.mock-room__category {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.mock-room__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.mock-room__people {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.mock-room__host {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-left: var(--space-xs);
+}
+
+/* Subtle health line */
+.home__health {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.home__health-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+.home__health-dot--ok {
+  background-color: var(--color-green);
+}
+
+.home__health-dot--down {
+  background-color: var(--color-danger);
+}

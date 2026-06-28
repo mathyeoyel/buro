@@ -1,0 +1,48 @@
+.buro-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.buro-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  animation: buro-fade-in var(--transition-base);
+}
+
+.buro-sheet__panel {
+  position: relative;
+  width: 100%;
+  max-width: var(--mobile-max-width);
+  background-color: var(--color-bg-elevated);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  padding: var(--space-sm) var(--space-lg) var(--space-2xl);
+  box-shadow: var(--shadow-lg);
+  animation: buro-slide-up var(--transition-base);
+}
+
+.buro-sheet__grabber {
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-border-strong);
+  margin: var(--space-sm) auto var(--space-md);
+}
+
+.buro-sheet__title {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-md);
+}
+
+@keyframes buro-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+}
