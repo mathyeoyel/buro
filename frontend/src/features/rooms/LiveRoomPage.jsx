@@ -5,6 +5,7 @@ import {
   BottomSheet,
   Button,
   FloatingReaction,
+  Icon,
   Input,
   LiveBadge,
   LoadingState,
@@ -445,7 +446,11 @@ export default function LiveRoomPage() {
     return (
       <div className="live-room">
         <p className="rooms-page__error">{error}</p>
-        <Button variant="secondary" onClick={() => navigate("/rooms")}>
+        <Button
+          variant="secondary"
+          leadingIcon={<Icon name="back" size={18} />}
+          onClick={() => navigate("/rooms")}
+        >
           Back to rooms
         </Button>
       </div>
@@ -460,7 +465,12 @@ export default function LiveRoomPage() {
             ? "You cannot rejoin this room."
             : "You were removed from this room."}
         </div>
-        <Button variant="secondary" fullWidth onClick={() => navigate("/rooms")}>
+        <Button
+          variant="secondary"
+          fullWidth
+          leadingIcon={<Icon name="back" size={18} />}
+          onClick={() => navigate("/rooms")}
+        >
           Back to rooms
         </Button>
       </div>
@@ -527,7 +537,7 @@ export default function LiveRoomPage() {
                   aria-label={`Manage ${p.display_name}`}
                   onClick={() => setHostMenuUser(p)}
                 >
-                  ···
+                  <Icon name="more" size={18} />
                 </button>
               )}
             </div>
@@ -558,6 +568,7 @@ export default function LiveRoomPage() {
           <Button
             variant="secondary"
             fullWidth
+            leadingIcon={<Icon name="chat" size={18} />}
             disabled={socialDisabled}
             onClick={handleOpenChat}
           >
@@ -566,6 +577,7 @@ export default function LiveRoomPage() {
           <Button
             variant="secondary"
             fullWidth
+            leadingIcon={<Icon name="react" size={18} />}
             disabled={socialDisabled}
             onClick={() => setShowReactions((open) => !open)}
           >
@@ -579,6 +591,7 @@ export default function LiveRoomPage() {
           <Button
             variant="ghost"
             size="sm"
+            leadingIcon={<Icon name="report" size={16} />}
             onClick={() => {
               setReportTarget(null);
               setShowReport(true);
@@ -618,6 +631,7 @@ export default function LiveRoomPage() {
           <Button
             variant="secondary"
             fullWidth
+            leadingIcon={<Icon name="leave" size={18} />}
             disabled={actionsDisabled}
             onClick={handleLeave}
           >
@@ -637,6 +651,7 @@ export default function LiveRoomPage() {
             <Button
               variant="danger"
               fullWidth
+              leadingIcon={<Icon name="end" size={18} />}
               disabled={actionsDisabled}
               onClick={handleEnd}
             >
@@ -644,7 +659,12 @@ export default function LiveRoomPage() {
             </Button>
           </>
         )}
-        <Button variant="ghost" fullWidth onClick={() => navigate("/rooms")}>
+        <Button
+          variant="ghost"
+          fullWidth
+          leadingIcon={<Icon name="back" size={18} />}
+          onClick={() => navigate("/rooms")}
+        >
           Back to rooms
         </Button>
       </div>
@@ -694,6 +714,7 @@ export default function LiveRoomPage() {
           <Button
             variant="secondary"
             fullWidth
+            leadingIcon={<Icon name="report" size={18} />}
             onClick={() => {
               setReportTarget(hostMenuUser);
               setShowReport(true);
@@ -705,6 +726,7 @@ export default function LiveRoomPage() {
           <Button
             variant="secondary"
             fullWidth
+            leadingIcon={<Icon name="remove" size={18} />}
             onClick={() => {
               setConfirmAction({ type: "remove", user: hostMenuUser });
               setHostMenuUser(null);
@@ -715,6 +737,7 @@ export default function LiveRoomPage() {
           <Button
             variant="danger"
             fullWidth
+            leadingIcon={<Icon name="block" size={18} />}
             onClick={() => {
               setConfirmAction({ type: "block", user: hostMenuUser });
               setHostMenuUser(null);

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
-import { AppShell, MobileShell, BottomNavigation } from "../components";
+import { AppShell, MobileShell, BottomNavigation, Icon } from "../components";
 import ProtectedRoute, { GuestRoute } from "../components/auth/ProtectedRoute";
 import StaffRoute from "../components/auth/StaffRoute";
 import SignupPage from "../features/auth/SignupPage";
@@ -14,9 +14,19 @@ import AdminLiveRoomsPage from "../features/admin/AdminLiveRoomsPage";
 
 function getNavItems(pathname) {
   return [
-    { id: "rooms", label: "Rooms", icon: "🎷", active: pathname === "/rooms" },
-    { id: "start", label: "Start", icon: "➕", active: false },
-    { id: "profile", label: "You", icon: "🙂", active: pathname.startsWith("/profile") },
+    {
+      id: "rooms",
+      label: "Rooms",
+      icon: <Icon name="rooms" />,
+      active: pathname === "/rooms",
+    },
+    { id: "start", label: "Start", icon: <Icon name="start" />, active: false },
+    {
+      id: "profile",
+      label: "You",
+      icon: <Icon name="profile" />,
+      active: pathname.startsWith("/profile"),
+    },
   ];
 }
 

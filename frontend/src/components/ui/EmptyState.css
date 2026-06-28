@@ -8,7 +8,16 @@
 }
 
 .buro-empty__icon {
-  font-size: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-xs);
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-muted);
+  color: var(--color-orange);
+  font-size: 2rem;
 }
 
 .buro-empty__title {

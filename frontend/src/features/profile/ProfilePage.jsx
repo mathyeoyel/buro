@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Avatar, Button } from "../../components";
+import { Avatar, Button, Icon } from "../../components";
 import { useAuth } from "../../context/AuthContext";
 import "./ProfilePage.css";
 
@@ -32,15 +32,30 @@ export default function ProfilePage() {
         </Button>
         {user?.is_staff && (
           <>
-            <Button variant="secondary" fullWidth onClick={() => navigate("/admin/reports")}>
+            <Button
+              variant="secondary"
+              fullWidth
+              leadingIcon={<Icon name="report" size={18} />}
+              onClick={() => navigate("/admin/reports")}
+            >
               Admin reports
             </Button>
-            <Button variant="secondary" fullWidth onClick={() => navigate("/admin/live-rooms")}>
+            <Button
+              variant="secondary"
+              fullWidth
+              leadingIcon={<Icon name="admin" size={18} />}
+              onClick={() => navigate("/admin/live-rooms")}
+            >
               Admin live rooms
             </Button>
           </>
         )}
-        <Button variant="ghost" fullWidth onClick={handleLogout}>
+        <Button
+          variant="ghost"
+          fullWidth
+          leadingIcon={<Icon name="leave" size={18} />}
+          onClick={handleLogout}
+        >
           Sign out
         </Button>
       </div>

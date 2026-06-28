@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Avatar, Button, EmptyState, LoadingState } from "../../components";
+import { Avatar, Button, EmptyState, Icon, LoadingState } from "../../components";
 import "./rooms.css";
 
 export default function RoomChatSheet({
@@ -32,7 +32,11 @@ export default function RoomChatSheet({
         {loading ? (
           <LoadingState label="Loading chat…" />
         ) : messages.length === 0 ? (
-          <EmptyState title="No messages yet." description="" />
+          <EmptyState
+            icon={<Icon name="chat" size={30} />}
+            title="No messages yet."
+            description=""
+          />
         ) : (
           messages.map((message) => (
             <div key={message.id} className="room-chat__message">
@@ -60,7 +64,12 @@ export default function RoomChatSheet({
           disabled={disabled || sending}
           maxLength={280}
         />
-        <Button type="submit" size="sm" disabled={disabled || sending || !body.trim()}>
+        <Button
+          type="submit"
+          size="sm"
+          leadingIcon={<Icon name="send" size={16} />}
+          disabled={disabled || sending || !body.trim()}
+        >
           Send
         </Button>
       </form>

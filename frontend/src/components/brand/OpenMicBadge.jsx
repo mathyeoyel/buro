@@ -1,4 +1,5 @@
 import Badge from "../ui/Badge";
+import Icon from "../ui/Icon";
 
 /**
  * Badge for the default "Open Mic" room mode.
@@ -6,7 +7,7 @@ import Badge from "../ui/Badge";
 export default function OpenMicBadge({ label = "Open Mic" }) {
   return (
     <Badge tone="orange">
-      <span aria-hidden="true">🎙️</span>
+      <Icon name="mic" size={14} strokeWidth={2.2} />
       {label}
     </Badge>
   );

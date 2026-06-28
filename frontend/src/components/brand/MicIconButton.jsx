@@ -1,3 +1,4 @@
+import Icon from "../ui/Icon";
 import "./MicIconButton.css";
 
 /**
@@ -30,7 +31,7 @@ export default function MicIconButton({
       title={label}
     >
       <span className="buro-mic__glyph" aria-hidden="true">
-        {muted ? "🔇" : "🎤"}
+        <Icon name={muted ? "micOff" : "mic"} size={size === "lg" ? 30 : 24} />
       </span>
       <span className="buro-mic__text">{displayText}</span>
     </button>

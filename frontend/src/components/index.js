@@ -8,6 +8,7 @@ export { default as Modal } from "./ui/Modal";
 export { default as BottomSheet } from "./ui/BottomSheet";
 export { default as EmptyState } from "./ui/EmptyState";
 export { default as LoadingState } from "./ui/LoadingState";
+export { default as Icon } from "./ui/Icon";
 
 // Layout
 export { default as AppShell } from "./layout/AppShell";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button, LoadingState } from "../../components";
+import { BuroLogo, Button, LoadingState } from "../../components";
 import { getAdminReports, updateReportStatus } from "../../services/admin";
 import "./admin.css";
 
@@ -40,7 +40,10 @@ export default function AdminReportsPage() {
   return (
     <div className="admin-page">
       <div className="admin-page__header">
-        <h1 className="admin-page__title">Reports</h1>
+        <div className="admin-page__heading">
+          <BuroLogo mark size="sm" />
+          <h1 className="admin-page__title">Reports</h1>
+        </div>
         <Link to="/admin/live-rooms" className="admin-page__link">
           Live rooms
         </Link>

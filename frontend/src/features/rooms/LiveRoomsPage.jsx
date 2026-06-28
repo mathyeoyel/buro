@@ -4,6 +4,7 @@ import {
   BuroLogo,
   Button,
   EmptyState,
+  Icon,
   LoadingState,
 } from "../../components";
 import { extractRoomError, getLiveRooms } from "../../services/rooms";
@@ -67,7 +68,7 @@ export default function LiveRoomsPage() {
         <Button
           size="lg"
           fullWidth
-          leadingIcon={<span aria-hidden="true">🎷</span>}
+          leadingIcon={<Icon name="start" />}
           onClick={openStartSheet}
         >
           Start Jazzing
@@ -80,9 +81,9 @@ export default function LiveRoomsPage() {
         <h2 className="rooms-page__section-title">Live now</h2>
         {rooms.length === 0 ? (
           <EmptyState
-            icon="🎷"
+            icon={<Icon name="rooms" size={32} />}
             title="No one is jazzing yet."
-            description=""
+            description="Start jazzing and bring people in."
             action={<Button onClick={openStartSheet}>Start Jazzing</Button>}
           />
         ) : (

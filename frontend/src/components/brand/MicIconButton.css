@@ -37,7 +37,9 @@
 }
 
 .buro-mic__glyph {
-  font-size: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
 }
 

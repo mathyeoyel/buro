@@ -11,6 +11,12 @@
   gap: var(--space-md);
 }
 
+.admin-page__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .admin-page__title {
   font-size: var(--font-size-xl);
 }

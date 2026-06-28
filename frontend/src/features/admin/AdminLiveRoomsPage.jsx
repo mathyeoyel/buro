@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button, LoadingState } from "../../components";
+import { BuroLogo, Button, LoadingState } from "../../components";
 import {
   adminEndRoom,
   adminSuspendUser,
@@ -64,7 +64,10 @@ export default function AdminLiveRoomsPage() {
   return (
     <div className="admin-page">
       <div className="admin-page__header">
-        <h1 className="admin-page__title">Live rooms</h1>
+        <div className="admin-page__heading">
+          <BuroLogo mark size="sm" />
+          <h1 className="admin-page__title">Live rooms</h1>
+        </div>
         <Link to="/admin/reports" className="admin-page__link">
           Reports
         </Link>
