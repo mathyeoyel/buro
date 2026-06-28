@@ -31,6 +31,9 @@ def get_active_participant(user, room):
 
 def assert_can_interact_in_room(user, room):
     """User must be an active participant and the room must be live."""
+    from safety.services import assert_not_suspended
+
+    assert_not_suspended(user)
     if not room.is_live:
         raise ValidationError({"detail": "This room has ended."})
     participant = get_active_participant(user, room)
@@ -49,6 +52,9 @@ def user_has_live_hosted_room(user):
 
 
 def assert_can_start_room(user):
+    from safety.services import assert_not_suspended
+
+    assert_not_suspended(user)
     if not getattr(settings, "ROOM_CREATION_ENABLED", True):
         raise PermissionDenied("Room creation is currently disabled.")
 
@@ -81,6 +87,15 @@ def start_room(user, title=None, category=None):
 
 
 def assert_can_join_room(user, room):
+    from safety.services import (
+        BLOCKED_MESSAGE,
+        REMOVED_MESSAGE,
+        assert_not_blocked_from_room,
+        assert_not_suspended,
+        is_user_blocked_from_room,
+    )
+
+    assert_not_suspended(user)
     if not room.is_live:
         raise ValidationError({"detail": "This room has ended."})
 
@@ -90,9 +105,12 @@ def assert_can_join_room(user, room):
     if participant_count(room) >= room.max_participants:
         raise ValidationError({"detail": ROOM_FULL_MESSAGE})
 
+    if is_user_blocked_from_room(user, room):
+        raise PermissionDenied(BLOCKED_MESSAGE)
+
     existing = RoomParticipant.objects.filter(room=room, user=user).first()
     if existing and existing.is_removed:
-        raise PermissionDenied("You were removed from this room.")
+        raise PermissionDenied(REMOVED_MESSAGE)
 
     if existing and existing.is_active:
         return existing  # idempotent join

@@ -17,4 +17,6 @@ urlpatterns = [
     path("rooms/<int:room_id>/messages/", RoomMessagesView.as_view(), name="rooms-messages"),
     path("rooms/<int:room_id>/reactions/", RoomReactionsView.as_view(), name="rooms-reactions"),
     path("rooms/<int:room_id>/audio-token/", RoomAudioTokenView.as_view(), name="rooms-audio-token"),
+    path("rooms/<int:room_id>/remove-user/", views.RemoveUserView.as_view(), name="rooms-remove-user"),
+    path("rooms/<int:room_id>/block-user/", views.BlockUserView.as_view(), name="rooms-block-user"),
 ]

@@ -30,6 +30,16 @@ export default function ProfilePage() {
         <Button variant="secondary" fullWidth onClick={() => navigate("/profile/edit")}>
           Edit profile
         </Button>
+        {user?.is_staff && (
+          <>
+            <Button variant="secondary" fullWidth onClick={() => navigate("/admin/reports")}>
+              Admin reports
+            </Button>
+            <Button variant="secondary" fullWidth onClick={() => navigate("/admin/live-rooms")}>
+              Admin live rooms
+            </Button>
+          </>
+        )}
         <Button variant="ghost" fullWidth onClick={handleLogout}>
           Sign out
         </Button>

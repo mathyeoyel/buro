@@ -9,6 +9,7 @@ import {
   LiveBadge,
   LoadingState,
   MicIconButton,
+  Modal,
   OpenMicBadge,
 } from "../../components";
 import { useAuth } from "../../context/AuthContext";
@@ -26,6 +27,13 @@ import {
   setMuted,
   updateRoom,
 } from "../../services/rooms";
+import {
+  REPORT_REASONS,
+  blockUser,
+  createReport,
+  extractModerationError,
+  removeUser,
+} from "../../services/moderation";
 import RoomChatSheet from "./RoomChatSheet";
 import "./rooms.css";
 
@@ -80,7 +88,9 @@ function applyRoomEvent(prev, event) {
       };
     }
 
-    case "participant.left": {
+    case "participant.left":
+    case "participant.removed":
+    case "participant.blocked": {
       const participants = (prev.participants ?? []).filter(
         (p) => p.id !== payload.user_id
       );
@@ -105,12 +115,13 @@ function applyRoomEvent(prev, event) {
       };
 
     case "room.ended":
+    case "moderation.room_ended":
       return {
         ...prev,
-        ...payload.room,
+        ...(payload.room ?? {}),
         status: "ended",
         ended_at: payload.ended_at ?? payload.room?.ended_at,
-        participants: payload.room.participants ?? prev.participants,
+        participants: payload.room?.participants ?? prev.participants,
       };
 
     default:
@@ -141,6 +152,15 @@ export default function LiveRoomPage() {
   const [floatingReactions, setFloatingReactions] = useState([]);
   const seenReactionsRef = useRef(new Set());
   const leavingRef = useRef(false);
+
+  const [moderationOutcome, setModerationOutcome] = useState(null);
+  const [hostMenuUser, setHostMenuUser] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [showReport, setShowReport] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null);
+  const [reportReason, setReportReason] = useState("spam");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportSending, setReportSending] = useState(false);
 
   const loadRoom = useCallback(async () => {
     setError("");
@@ -175,6 +195,25 @@ export default function LiveRoomPage() {
     }, 2500);
   }, []);
 
+  const isHost = room?.current_user_role === "host";
+  const isParticipant = room?.current_user_is_participant;
+  const isEnded = room?.status === "ended";
+  const isLive = room?.status === "live";
+
+  const currentParticipant = room?.participants?.find((p) => p.id === user?.id);
+  const isMuted = currentParticipant?.is_muted ?? true;
+  const socialDisabled = !isParticipant || isEnded || Boolean(moderationOutcome);
+
+  const {
+    status: audioStatus,
+    provider: audioProvider,
+    disconnect: disconnectAudio,
+    retryMic,
+  } = useAudioRoom(roomId, {
+    enabled: Boolean(room && isParticipant && isLive && !moderationOutcome),
+    isMuted,
+  });
+
   const handleSocketEvent = useCallback(
     (event) => {
       if (event.type === "chat.message") {
@@ -185,39 +224,30 @@ export default function LiveRoomPage() {
         addFloatingReaction(event.payload.reaction);
         return;
       }
+      if (
+        (event.type === "participant.removed" || event.type === "participant.blocked") &&
+        event.payload.user_id === user?.id
+      ) {
+        setModerationOutcome(event.type === "participant.blocked" ? "blocked" : "removed");
+        disconnectAudio();
+      }
+      if (event.type === "moderation.room_ended") {
+        disconnectAudio();
+      }
       setRoom((prev) => applyRoomEvent(prev, event));
     },
-    [addFloatingReaction]
+    [addFloatingReaction, disconnectAudio, user?.id]
   );
 
-  const isHost = room?.current_user_role === "host";
-  const isParticipant = room?.current_user_is_participant;
-  const isEnded = room?.status === "ended";
-  const isLive = room?.status === "live";
-
-  const currentParticipant = room?.participants?.find((p) => p.id === user?.id);
-  const isMuted = currentParticipant?.is_muted ?? true;
-  const socialDisabled = !isParticipant || isEnded;
-
   useRoomSocket(roomId, {
-    enabled: Boolean(room && isParticipant && isLive),
+    enabled: Boolean(room && isParticipant && isLive && !moderationOutcome),
     onEvent: handleSocketEvent,
-  });
-
-  const {
-    status: audioStatus,
-    provider: audioProvider,
-    disconnect: disconnectAudio,
-    retryMic,
-  } = useAudioRoom(roomId, {
-    enabled: Boolean(room && isParticipant && isLive),
-    isMuted,
   });
 
   const audioLabel = audioStatusLabel(audioStatus, audioProvider);
   const micEnabled = canUseMicToggle({
     isParticipant,
-    isEnded,
+    isEnded: isEnded || Boolean(moderationOutcome),
     provider: audioProvider,
     status: audioStatus,
   });
@@ -343,6 +373,41 @@ export default function LiveRoomPage() {
     }
   };
 
+  const runModerationAction = async (action, targetUserId) => {
+    setActionLoading(true);
+    setError("");
+    try {
+      if (action === "remove") await removeUser(roomId, targetUserId);
+      if (action === "block") await blockUser(roomId, targetUserId);
+      setConfirmAction(null);
+      setHostMenuUser(null);
+    } catch (err) {
+      setError(extractModerationError(err));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSubmitReport = async (e) => {
+    e.preventDefault();
+    setReportSending(true);
+    setError("");
+    try {
+      await createReport({
+        room: Number(roomId),
+        reason: reportReason,
+        details: reportDetails.trim(),
+        ...(reportTarget ? { reported_user: reportTarget.id } : {}),
+      });
+      setShowReport(false);
+      setReportDetails("");
+    } catch (err) {
+      setError(extractModerationError(err));
+    } finally {
+      setReportSending(false);
+    }
+  };
+
   if (loading) {
     return <LoadingState label="Tuning into the room…" />;
   }
@@ -358,7 +423,22 @@ export default function LiveRoomPage() {
     );
   }
 
-  const actionsDisabled = isEnded || actionLoading;
+  if (moderationOutcome) {
+    return (
+      <div className="live-room">
+        <div className="live-room__ended">
+          {moderationOutcome === "blocked"
+            ? "You cannot rejoin this room."
+            : "You were removed from this room."}
+        </div>
+        <Button variant="secondary" fullWidth onClick={() => navigate("/rooms")}>
+          Back to rooms
+        </Button>
+      </div>
+    );
+  }
+
+  const actionsDisabled = isEnded || actionLoading || Boolean(moderationOutcome);
 
   return (
     <div className="live-room live-room--with-reactions">
@@ -410,6 +490,16 @@ export default function LiveRoomPage() {
               <span className="live-room__participant-role">
                 {p.role === "host" ? "Host" : p.is_muted ? "Muted" : "Live"}
               </span>
+              {isHost && p.role !== "host" && isLive && (
+                <button
+                  type="button"
+                  className="live-room__participant-menu"
+                  aria-label={`Manage ${p.display_name}`}
+                  onClick={() => setHostMenuUser(p)}
+                >
+                  ···
+                </button>
+              )}
             </div>
           ))}
         </section>
@@ -450,6 +540,21 @@ export default function LiveRoomPage() {
             onClick={() => setShowReactions((open) => !open)}
           >
             React
+          </Button>
+        </div>
+      )}
+
+      {isParticipant && isLive && (
+        <div className="live-room__report-row">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setReportTarget(null);
+              setShowReport(true);
+            }}
+          >
+            Report room
           </Button>
         </div>
       )}
@@ -549,6 +654,102 @@ export default function LiveRoomPage() {
           </Button>
         </form>
       </BottomSheet>
+
+      <BottomSheet
+        open={Boolean(hostMenuUser)}
+        onClose={() => setHostMenuUser(null)}
+        title={hostMenuUser?.display_name}
+      >
+        <div className="live-room__host-actions">
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={() => {
+              setReportTarget(hostMenuUser);
+              setShowReport(true);
+              setHostMenuUser(null);
+            }}
+          >
+            Report user
+          </Button>
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={() => {
+              setConfirmAction({ type: "remove", user: hostMenuUser });
+              setHostMenuUser(null);
+            }}
+          >
+            Remove
+          </Button>
+          <Button
+            variant="danger"
+            fullWidth
+            onClick={() => {
+              setConfirmAction({ type: "block", user: hostMenuUser });
+              setHostMenuUser(null);
+            }}
+          >
+            Block
+          </Button>
+        </div>
+      </BottomSheet>
+
+      <Modal
+        open={Boolean(confirmAction)}
+        onClose={() => setConfirmAction(null)}
+        title={confirmAction?.type === "block" ? "Block user?" : "Remove user?"}
+        footer={
+          <div className="live-room__modal-actions">
+            <Button variant="secondary" onClick={() => setConfirmAction(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              disabled={actionLoading}
+              onClick={() =>
+                runModerationAction(confirmAction.type, confirmAction.user.id)
+              }
+            >
+              {confirmAction?.type === "block" ? "Block" : "Remove"}
+            </Button>
+          </div>
+        }
+      />
+
+      <Modal open={showReport} onClose={() => setShowReport(false)} title="Report">
+        <form className="live-room__report-form" onSubmit={handleSubmitReport}>
+          <label className="live-room__report-label">
+            Reason
+            <select
+              className="live-room__report-select"
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+            >
+              {REPORT_REASONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Input
+            label="Details"
+            name="details"
+            value={reportDetails}
+            onChange={(e) => setReportDetails(e.target.value)}
+            hint="Optional."
+          />
+          <div className="live-room__modal-actions">
+            <Button type="button" variant="secondary" onClick={() => setShowReport(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={reportSending}>
+              Submit
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

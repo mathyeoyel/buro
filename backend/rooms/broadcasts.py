@@ -104,3 +104,24 @@ def broadcast_chat_message(room_id, message_data):
 
 def broadcast_reaction_sent(room_id, reaction_data):
     broadcast_room_event(room_id, "reaction.sent", {"reaction": reaction_data})
+
+
+def broadcast_participant_removed(room_id, user_id, participant_count, reason=None):
+    payload = {"user_id": user_id, "participant_count": participant_count}
+    if reason:
+        payload["reason"] = reason
+    broadcast_room_event(room_id, "participant.removed", payload)
+
+
+def broadcast_participant_blocked(room_id, user_id, participant_count, reason=None):
+    payload = {"user_id": user_id, "participant_count": participant_count}
+    if reason:
+        payload["reason"] = reason
+    broadcast_room_event(room_id, "participant.blocked", payload)
+
+
+def broadcast_moderation_room_ended(room_id, reason=None):
+    payload = {"room_id": room_id}
+    if reason:
+        payload["reason"] = reason
+    broadcast_room_event(room_id, "moderation.room_ended", payload)

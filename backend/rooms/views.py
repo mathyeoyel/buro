@@ -5,15 +5,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .broadcasts import (
+    broadcast_participant_blocked,
     broadcast_participant_joined,
     broadcast_participant_left,
     broadcast_participant_muted,
+    broadcast_participant_removed,
     broadcast_participant_unmuted,
     broadcast_room_ended,
     broadcast_room_updated,
 )
 from .models import Room
 from .serializers import ParticipantSerializer, RoomSerializer, StartRoomSerializer, UpdateRoomSerializer
+from safety.serializers import ModerationActionSerializer
+from safety.services import block_user_from_room, remove_user_from_room
 from .services import end_room, join_room, leave_room, participant_count, set_participant_muted, start_room
 
 
@@ -153,6 +157,46 @@ class MuteRoomView(APIView):
             broadcast_participant_unmuted(room.id, participant)
 
         return Response({"participant": ParticipantSerializer(participant).data})
+
+
+class RemoveUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, room_id):
+        room = get_object_or_404(Room, pk=room_id)
+        payload = ModerationActionSerializer(data=request.data)
+        payload.is_valid(raise_exception=True)
+        reason = payload.validated_data.get("reason", "")
+        remove_user_from_room(
+            request.user, room, payload.validated_data["user_id"], reason=reason
+        )
+        broadcast_participant_removed(
+            room.id,
+            payload.validated_data["user_id"],
+            participant_count(room),
+            reason=reason or None,
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BlockUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, room_id):
+        room = get_object_or_404(Room, pk=room_id)
+        payload = ModerationActionSerializer(data=request.data)
+        payload.is_valid(raise_exception=True)
+        reason = payload.validated_data.get("reason", "")
+        block_user_from_room(
+            request.user, room, payload.validated_data["user_id"], reason=reason
+        )
+        broadcast_participant_blocked(
+            room.id,
+            payload.validated_data["user_id"],
+            participant_count(room),
+            reason=reason or None,
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class EndRoomView(APIView):
