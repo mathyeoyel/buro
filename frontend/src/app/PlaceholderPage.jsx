@@ -39,15 +39,28 @@ function MockRoomCard() {
   );
 }
 
+const STATUS = { CHECKING: "checking", ONLINE: "online", OFFLINE: "offline" };
+
 export default function PlaceholderPage() {
-  const [health, setHealth] = useState(null);
-  const [error, setError] = useState(false);
+  const [apiStatus, setApiStatus] = useState(STATUS.CHECKING);
 
   useEffect(() => {
+    let active = true;
+
     api
       .get("/health/")
-      .then((response) => setHealth(response.data))
-      .catch(() => setError(true));
+      .then((response) => {
+        // Axios: use response.status + response.data (never response.ok).
+        const isOk = response.status === 200 && response.data?.status === "ok";
+        if (active) setApiStatus(isOk ? STATUS.ONLINE : STATUS.OFFLINE);
+      })
+      .catch(() => {
+        if (active) setApiStatus(STATUS.OFFLINE);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
@@ -68,17 +81,17 @@ export default function PlaceholderPage() {
       </section>
 
       <p className="home__health">
-        {health && (
+        {apiStatus === STATUS.ONLINE && (
           <>
-            <span className="home__health-dot home__health-dot--ok" /> API {health.status}
+            <span className="home__health-dot home__health-dot--ok" /> API online
           </>
         )}
-        {error && (
+        {apiStatus === STATUS.OFFLINE && (
           <>
             <span className="home__health-dot home__health-dot--down" /> API offline
           </>
         )}
-        {!health && !error && <>Checking API…</>}
+        {apiStatus === STATUS.CHECKING && <>Checking API…</>}
       </p>
     </div>
   );
