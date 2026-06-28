@@ -106,6 +106,18 @@ class RoomAPITests(APITestCase):
         room = Room.objects.get(pk=room_id)
         self.assertIsNotNone(room.ended_at)
 
+    def test_ending_already_ended_room_is_idempotent(self):
+        self._auth(self.host_token)
+        start = self.client.post(self.start_url, {}, format="json")
+        room_id = start.data["room"]["id"]
+
+        first = self.client.post(reverse("rooms-end", args=[room_id]))
+        self.assertEqual(first.status_code, status.HTTP_200_OK)
+
+        second = self.client.post(reverse("rooms-end", args=[room_id]))
+        self.assertEqual(second.status_code, status.HTTP_200_OK)
+        self.assertEqual(second.data["room"]["status"], "ended")
+
     def test_non_host_cannot_end_room(self):
         self._auth(self.host_token)
         start = self.client.post(self.start_url, {}, format="json")

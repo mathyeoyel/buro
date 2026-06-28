@@ -6,6 +6,9 @@ const RECONNECT_MS = 3000;
 
 /**
  * Connect to a room WebSocket. Authenticates via ?token= query param.
+ *
+ * Pass `enabled: false` (e.g. when the room has ended or the current user was
+ * removed/blocked) to close the socket intentionally and stop reconnecting.
  */
 export function useRoomSocket(roomId, { enabled = true, onEvent } = {}) {
   const wsRef = useRef(null);
@@ -13,11 +16,21 @@ export function useRoomSocket(roomId, { enabled = true, onEvent } = {}) {
   const onEventRef = useRef(onEvent);
   onEventRef.current = onEvent;
 
+  // Tracks whether reconnects are currently allowed. Set to false on any
+  // intentional close so a late `onclose` can't schedule a reconnect.
+  const shouldReconnectRef = useRef(enabled);
+
   const disconnect = useCallback(() => {
+    shouldReconnectRef.current = false;
     clearTimeout(reconnectRef.current);
+    reconnectRef.current = null;
     if (wsRef.current) {
-      wsRef.current.close();
+      const ws = wsRef.current;
       wsRef.current = null;
+      ws.onclose = null;
+      ws.onerror = null;
+      ws.onmessage = null;
+      ws.close();
     }
   }, []);
 
@@ -25,7 +38,9 @@ export function useRoomSocket(roomId, { enabled = true, onEvent } = {}) {
     const token = getStoredToken();
     if (!enabled || !roomId || !token) return;
 
+    shouldReconnectRef.current = true;
     disconnect();
+    shouldReconnectRef.current = true;
 
     const url = `${WS_BASE}/ws/rooms/${roomId}/?token=${encodeURIComponent(token)}`;
     const ws = new WebSocket(url);
@@ -41,7 +56,7 @@ export function useRoomSocket(roomId, { enabled = true, onEvent } = {}) {
     };
 
     ws.onclose = () => {
-      if (enabled && getStoredToken()) {
+      if (shouldReconnectRef.current && getStoredToken()) {
         reconnectRef.current = setTimeout(connect, RECONNECT_MS);
       }
     };

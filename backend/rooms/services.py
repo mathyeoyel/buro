@@ -182,8 +182,8 @@ def leave_room(user, room):
         raise ValidationError({"detail": "You are not in this room."})
 
     if participant.role == RoomParticipant.Role.HOST:
-        end_room(user, room)
-        return True
+        _room, ended_now = end_room(user, room)
+        return ended_now
 
     participant.left_at = timezone.now()
     participant.save(update_fields=["left_at"])
@@ -191,11 +191,16 @@ def leave_room(user, room):
 
 
 def end_room(user, room):
-    if room.host_id != user.id:
+    """End a live room.
+
+    Idempotent: if the room is already ended and the requester is the host or
+    staff, this returns successfully without re-ending it. Returns a tuple of
+    ``(room, ended_now)`` where ``ended_now`` is ``True`` only when this call
+    transitioned the room from live to ended.
+    """
+    if room.host_id != user.id and not user.is_staff:
         raise PermissionDenied("Only the host can end this room.")
 
-    if not room.is_live:
-        raise ValidationError({"detail": "This room has already ended."})
-
-    finalize_room_end(room)
-    return room
+    ended_now = finalize_room_end(room)
+    room.refresh_from_db()
+    return room, ended_now

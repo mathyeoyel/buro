@@ -59,6 +59,16 @@ function upsertParticipant(participants, participant) {
   return next;
 }
 
+function isAlreadyEndedError(error) {
+  const status = error?.response?.status;
+  const detail = error?.response?.data?.detail;
+  return (
+    status === 400 &&
+    typeof detail === "string" &&
+    detail.toLowerCase().includes("already ended")
+  );
+}
+
 function appendMessage(messages, message, max = MAX_MESSAGES) {
   if (messages.some((item) => item.id === message.id)) return messages;
   const next = [...messages, message];
@@ -137,6 +147,7 @@ export default function LiveRoomPage() {
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isEndingRoom, setIsEndingRoom] = useState(false);
   const [muteLoading, setMuteLoading] = useState(false);
   const [error, setError] = useState("");
   const [showEdit, setShowEdit] = useState(false);
@@ -231,7 +242,9 @@ export default function LiveRoomPage() {
         setModerationOutcome(event.type === "participant.blocked" ? "blocked" : "removed");
         disconnectAudio();
       }
-      if (event.type === "moderation.room_ended") {
+      if (event.type === "room.ended" || event.type === "moderation.room_ended") {
+        // Room is over: drop audio. The socket stops reconnecting once the
+        // room state flips to "ended" below (enabled becomes false).
         disconnectAudio();
       }
       setRoom((prev) => applyRoomEvent(prev, event));
@@ -332,17 +345,33 @@ export default function LiveRoomPage() {
     }
   };
 
+  const markRoomEnded = useCallback((endedRoom) => {
+    setRoom((prev) => {
+      if (!prev) return endedRoom ?? prev;
+      return { ...prev, ...(endedRoom ?? {}), status: "ended" };
+    });
+  }, []);
+
   const handleEnd = async () => {
-    if (actionLoading) return;
-    setActionLoading(true);
+    if (isEndingRoom || leavingRef.current) return;
+    setIsEndingRoom(true);
+    leavingRef.current = true;
     setError("");
     try {
       await disconnectAudio();
-      await endRoom(roomId);
+      const endedRoom = await endRoom(roomId);
+      markRoomEnded(endedRoom);
     } catch (err) {
-      setError(extractRoomError(err));
+      // Backend is idempotent, but treat a stale "already ended" response as
+      // success rather than a scary error banner.
+      if (isAlreadyEndedError(err)) {
+        markRoomEnded(null);
+      } else {
+        setError(extractRoomError(err));
+        leavingRef.current = false;
+      }
     } finally {
-      setActionLoading(false);
+      setIsEndingRoom(false);
     }
   };
 
@@ -438,7 +467,8 @@ export default function LiveRoomPage() {
     );
   }
 
-  const actionsDisabled = isEnded || actionLoading || Boolean(moderationOutcome);
+  const actionsDisabled =
+    isEnded || actionLoading || isEndingRoom || Boolean(moderationOutcome);
 
   return (
     <div className="live-room live-room--with-reactions">
@@ -610,7 +640,7 @@ export default function LiveRoomPage() {
               disabled={actionsDisabled}
               onClick={handleEnd}
             >
-              End room
+              {isEndingRoom ? "Ending…" : "End room"}
             </Button>
           </>
         )}

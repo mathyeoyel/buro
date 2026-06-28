@@ -54,6 +54,7 @@ class AudioProviderTests(APITestCase):
     def _auth(self, token):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {token}")
 
+    @override_settings(AUDIO_PROVIDER="mock")
     def test_active_participant_can_request_mock_audio_token(self):
         self._auth(self.guest_token)
         response = self.client.post(self.audio_token_url)
