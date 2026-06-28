@@ -340,12 +340,6 @@
   gap: var(--space-lg);
 }
 
-.live-room__topbar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .live-room__header {
   display: flex;
   flex-direction: column;
@@ -354,10 +348,45 @@
   align-items: center;
 }
 
+.live-room__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
 .live-room__title {
   font-size: var(--font-size-xl);
   line-height: var(--line-height-tight);
   font-weight: var(--font-weight-bold);
+}
+
+.live-room__title-edit {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.live-room__title-edit:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+.live-room__title-edit:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.live-room__title-edit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .live-room__meta {

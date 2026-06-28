@@ -3,7 +3,7 @@
  * Stroke-based, 24x24 viewBox, inherits `currentColor`. No gradients.
  *
  * name: rooms | start | profile | chat | react | mic | micOff | more | back
- *     | report | admin | leave | end | close | plus | send | remove | block | users
+ *     | report | admin | leave | end | edit | close | plus | send | remove | block | users
  */
 const PATHS = {
   rooms: (
@@ -81,6 +81,12 @@ const PATHS = {
     <>
       <circle cx="12" cy="12" r="9" />
       <rect x="9" y="9" width="6" height="6" rx="1" />
+    </>
+  ),
+  edit: (
+    <>
+      <path d="M4 20h4l10-10a2.1 2.1 0 0 0-3-3L5 17v3Z" />
+      <path d="M13.5 6.5l3 3" />
     </>
   ),
   close: <path d="M6 6l12 12M18 6L6 18" />,

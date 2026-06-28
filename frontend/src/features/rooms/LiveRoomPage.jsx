@@ -4,7 +4,6 @@ import {
   Avatar,
   Badge,
   BottomSheet,
-  BuroLogo,
   Button,
   FloatingReaction,
   Icon,
@@ -504,12 +503,21 @@ export default function LiveRoomPage() {
         ))}
       </div>
 
-      <div className="live-room__topbar">
-        <BuroLogo size="sm" />
-      </div>
-
       <div className="live-room__header">
-        <h1 className="live-room__title">{room.title}</h1>
+        <div className="live-room__title-row">
+          <h1 className="live-room__title">{room.title}</h1>
+          {isHost && isLive && (
+            <button
+              type="button"
+              className="live-room__title-edit"
+              aria-label="Edit title & category"
+              disabled={actionsDisabled}
+              onClick={() => setShowEdit(true)}
+            >
+              <Icon name="edit" size={18} />
+            </button>
+          )}
+        </div>
         <div className="live-room__meta">
           {isLive && <LiveBadge />}
           <OpenMicBadge />
@@ -667,25 +675,15 @@ export default function LiveRoomPage() {
           </Button>
         )}
         {isLive && isHost && (
-          <>
-            <Button
-              variant="secondary"
-              fullWidth
-              disabled={actionsDisabled}
-              onClick={() => setShowEdit(true)}
-            >
-              Edit title & category
-            </Button>
-            <Button
-              variant="danger"
-              fullWidth
-              leadingIcon={<Icon name="end" size={18} />}
-              disabled={actionsDisabled}
-              onClick={handleEnd}
-            >
-              {isEndingRoom ? "Ending…" : "End room"}
-            </Button>
-          </>
+          <Button
+            variant="danger"
+            fullWidth
+            leadingIcon={<Icon name="end" size={18} />}
+            disabled={actionsDisabled}
+            onClick={handleEnd}
+          >
+            {isEndingRoom ? "Ending…" : "End room"}
+          </Button>
         )}
         <Button
           variant="ghost"
