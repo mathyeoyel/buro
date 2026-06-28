@@ -110,7 +110,17 @@ class LeaveRoomView(APIView):
 
     def post(self, request, room_id):
         room = get_object_or_404(Room, pk=room_id)
-        leave_room(request.user, room)
+        room_ended = leave_room(request.user, room)
+
+        if room_ended:
+            from audio.services import end_audio_for_room
+
+            end_audio_for_room(room)
+            room.refresh_from_db()
+            broadcast_room_ended(room.id, room, request=request)
+            serializer = RoomSerializer(room, context={"request": request})
+            return Response({"room": serializer.data})
+
         broadcast_participant_left(room.id, request.user.id, participant_count(room))
         return Response(status=status.HTTP_204_NO_CONTENT)
 

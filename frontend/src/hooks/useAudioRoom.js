@@ -26,8 +26,10 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
 
   const audioRef = useRef(null);
   const connectingRef = useRef(false);
+  const enabledRef = useRef(enabled);
   const isMutedRef = useRef(isMuted);
 
+  enabledRef.current = enabled;
   isMutedRef.current = isMuted;
 
   const disconnect = useCallback(async () => {
@@ -38,6 +40,20 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
     setProvider(null);
     setToken(null);
     setError("");
+  }, []);
+
+  const handleConnectionState = useCallback((curState) => {
+    if (!enabledRef.current) return;
+
+    if (curState === "RECONNECTING") {
+      setStatus("reconnecting");
+    } else if (curState === "CONNECTED") {
+      setStatus("connected");
+      setError("");
+    } else if (curState === "DISCONNECTED") {
+      setStatus("error");
+      setError("Audio disconnected.");
+    }
   }, []);
 
   const syncMicState = useCallback(async (muted) => {
@@ -62,6 +78,12 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
     }
   }, []);
 
+  const retryMic = useCallback(async () => {
+    if (audioRef.current?.provider !== "agora") return;
+    if (isMutedRef.current) return;
+    await syncMicState(false);
+  }, [syncMicState]);
+
   const connect = useCallback(async () => {
     if (!roomId || !enabled || connectingRef.current) return;
 
@@ -71,6 +93,8 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
 
     try {
       const audio = await getAudioToken(roomId);
+      if (!enabledRef.current) return;
+
       audioRef.current = audio;
       setProvider(audio.provider);
       setToken(audio.token);
@@ -81,11 +105,13 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
           channel: audio.room_name,
           token: audio.token,
           uid: audio.uid,
-          onDisconnected: () => {
-            setStatus("error");
-            setError("Audio disconnected.");
-          },
+          onConnectionStateChange: handleConnectionState,
         });
+
+        if (!enabledRef.current) {
+          await leaveAgoraChannel();
+          return;
+        }
 
         if (!isMutedRef.current) {
           try {
@@ -94,7 +120,6 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
             if (isPermissionError(err)) {
               setStatus("permission_denied");
               setError("Microphone permission denied.");
-              connectingRef.current = false;
               return;
             }
             throw err;
@@ -104,6 +129,7 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
 
       setStatus("connected");
     } catch (err) {
+      if (!enabledRef.current) return;
       setStatus("error");
       setError(extractAudioError(err));
       setProvider(null);
@@ -113,7 +139,7 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
     } finally {
       connectingRef.current = false;
     }
-  }, [roomId, enabled]);
+  }, [roomId, enabled, handleConnectionState]);
 
   useEffect(() => {
     if (!enabled) {
@@ -133,7 +159,7 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
     syncMicState(isMuted);
   }, [isMuted, provider, status, syncMicState]);
 
-  return { status, provider, token, error };
+  return { status, provider, token, error, disconnect, retryMic };
 }
 
 function audioStatusLabel(status, provider) {
@@ -141,9 +167,19 @@ function audioStatusLabel(status, provider) {
     return provider === "mock" ? "Mock audio ready" : "Audio ready";
   }
   if (status === "connecting") return "Connecting audio…";
+  if (status === "reconnecting") return "Reconnecting…";
   if (status === "permission_denied") return "Mic permission needed";
   if (status === "error") return "Audio not connected";
   return "Audio comes next";
 }
 
-export { audioStatusLabel };
+function canUseMicToggle({ isParticipant, isEnded, provider, status }) {
+  if (!isParticipant || isEnded) return false;
+  if (provider === "mock") return true;
+  if (provider === "agora") {
+    return status === "connected" || status === "permission_denied";
+  }
+  return status === "connected";
+}
+
+export { audioStatusLabel, canUseMicToggle };

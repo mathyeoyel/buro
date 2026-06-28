@@ -12,7 +12,7 @@ import {
   OpenMicBadge,
 } from "../../components";
 import { useAuth } from "../../context/AuthContext";
-import { audioStatusLabel, useAudioRoom } from "../../hooks/useAudioRoom";
+import { audioStatusLabel, canUseMicToggle, useAudioRoom } from "../../hooks/useAudioRoom";
 import { useRoomSocket } from "../../hooks/useRoomSocket";
 import {
   endRoom,
@@ -140,6 +140,7 @@ export default function LiveRoomPage() {
   const [reactionSending, setReactionSending] = useState(false);
   const [floatingReactions, setFloatingReactions] = useState([]);
   const seenReactionsRef = useRef(new Set());
+  const leavingRef = useRef(false);
 
   const loadRoom = useCallback(async () => {
     setError("");
@@ -203,12 +204,23 @@ export default function LiveRoomPage() {
     onEvent: handleSocketEvent,
   });
 
-  const { status: audioStatus, provider: audioProvider } = useAudioRoom(roomId, {
+  const {
+    status: audioStatus,
+    provider: audioProvider,
+    disconnect: disconnectAudio,
+    retryMic,
+  } = useAudioRoom(roomId, {
     enabled: Boolean(room && isParticipant && isLive),
     isMuted,
   });
 
   const audioLabel = audioStatusLabel(audioStatus, audioProvider);
+  const micEnabled = canUseMicToggle({
+    isParticipant,
+    isEnded,
+    provider: audioProvider,
+    status: audioStatus,
+  });
 
   const loadChat = useCallback(async () => {
     setChatLoading(true);
@@ -273,16 +285,39 @@ export default function LiveRoomPage() {
       setRoom(data);
     });
 
-  const handleLeave = () =>
-    runAction(async () => {
+  const handleLeave = async () => {
+    if (leavingRef.current || actionLoading) return;
+    leavingRef.current = true;
+    setActionLoading(true);
+    setError("");
+    try {
+      await disconnectAudio();
       await leaveRoom(roomId);
       navigate("/rooms");
-    });
+    } catch (err) {
+      setError(extractRoomError(err));
+      leavingRef.current = false;
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
-  const handleEnd = () => runAction(() => endRoom(roomId));
+  const handleEnd = async () => {
+    if (actionLoading) return;
+    setActionLoading(true);
+    setError("");
+    try {
+      await disconnectAudio();
+      await endRoom(roomId);
+    } catch (err) {
+      setError(extractRoomError(err));
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const handleToggleMute = async () => {
-    if (!isParticipant || isEnded || muteLoading) return;
+    if (!micEnabled || muteLoading) return;
     setMuteLoading(true);
     setError("");
     try {
@@ -385,12 +420,16 @@ export default function LiveRoomPage() {
           <MicIconButton
             muted={isMuted}
             size="lg"
-            disabled={muteLoading}
+            disabled={!micEnabled || muteLoading}
             onClick={handleToggleMute}
             statusText={isMuted ? "Tap to talk" : "You're live"}
           />
           <p className="live-room__audio-status">{audioLabel}</p>
-          <p>{isMuted ? "Muted — tap the mic when you're ready." : "You're live on mic."}</p>
+          {audioStatus === "permission_denied" && (
+            <button type="button" className="live-room__audio-retry" onClick={retryMic}>
+              Retry mic
+            </button>
+          )}
         </div>
       )}
 

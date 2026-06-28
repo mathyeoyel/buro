@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
@@ -6,6 +8,8 @@ from .providers.base import ProviderToken
 from .providers.hundred_ms import HundredMsAudioProvider
 from .providers.livekit import LiveKitAudioProvider
 from .providers.mock import MockAudioProvider
+
+logger = logging.getLogger(__name__)
 
 SUPPORTED_AUDIO_PROVIDERS = frozenset({"mock", "agora", "livekit", "hundred_ms"})
 
@@ -41,3 +45,5 @@ def end_audio_for_room(room) -> None:
         get_audio_provider().end_room(room)
     except NotImplementedError:
         pass
+    except Exception:
+        logger.exception("Audio provider cleanup failed for room %s", room.id)

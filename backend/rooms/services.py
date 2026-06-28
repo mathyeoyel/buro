@@ -5,6 +5,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from .models import Room, RoomParticipant
 
 DEFAULT_CATEGORY = "Random Jazz"
+ROOM_FULL_MESSAGE = "Room is full."
 
 
 def default_room_title(display_name: str) -> str:
@@ -87,7 +88,7 @@ def assert_can_join_room(user, room):
         raise PermissionDenied("This room is locked.")
 
     if participant_count(room) >= room.max_participants:
-        raise ValidationError({"detail": "This room is full."})
+        raise ValidationError({"detail": ROOM_FULL_MESSAGE})
 
     existing = RoomParticipant.objects.filter(room=room, user=user).first()
     if existing and existing.is_removed:
@@ -117,7 +118,7 @@ def join_room(user, room):
         return existing, True
 
     if participant_count(room) >= room.max_participants:
-        raise ValidationError({"detail": "This room is full."})
+        raise ValidationError({"detail": ROOM_FULL_MESSAGE})
 
     participant = RoomParticipant.objects.create(
         room=room,
@@ -142,6 +143,19 @@ def set_participant_muted(user, room, muted: bool):
     return participant
 
 
+def finalize_room_end(room) -> bool:
+    """Mark a live room as ended. Returns False if already ended."""
+    room.refresh_from_db()
+    if not room.is_live:
+        return False
+
+    room.status = Room.Status.ENDED
+    room.ended_at = timezone.now()
+    room.save(update_fields=["status", "ended_at", "updated_at"])
+    active_participants(room).update(left_at=timezone.now())
+    return True
+
+
 def leave_room(user, room):
     participant = RoomParticipant.objects.filter(
         room=room, user=user, left_at__isnull=True, is_removed=False
@@ -150,11 +164,12 @@ def leave_room(user, room):
         raise ValidationError({"detail": "You are not in this room."})
 
     if participant.role == RoomParticipant.Role.HOST:
-        raise ValidationError({"detail": "Host cannot leave. End the room instead."})
+        end_room(user, room)
+        return True
 
     participant.left_at = timezone.now()
     participant.save(update_fields=["left_at"])
-    return participant
+    return False
 
 
 def end_room(user, room):
@@ -164,9 +179,5 @@ def end_room(user, room):
     if not room.is_live:
         raise ValidationError({"detail": "This room has already ended."})
 
-    room.status = Room.Status.ENDED
-    room.ended_at = timezone.now()
-    room.save(update_fields=["status", "ended_at", "updated_at"])
-
-    active_participants(room).update(left_at=timezone.now())
+    finalize_room_end(room)
     return room

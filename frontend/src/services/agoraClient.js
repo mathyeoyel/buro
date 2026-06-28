@@ -14,14 +14,18 @@ function isPermissionError(error) {
   );
 }
 
-export async function joinAgoraChannel({ appId, channel, token, uid, onDisconnected }) {
+export async function joinAgoraChannel({
+  appId,
+  channel,
+  token,
+  uid,
+  onConnectionStateChange,
+}) {
   await leaveAgoraChannel();
 
   const rtcClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-  rtcClient.on("connection-state-change", (curState) => {
-    if (curState === "DISCONNECTED" && onDisconnected) {
-      onDisconnected();
-    }
+  rtcClient.on("connection-state-change", (curState, prevState) => {
+    onConnectionStateChange?.(curState, prevState);
   });
 
   await rtcClient.join(appId, channel, token, uid);
@@ -59,6 +63,10 @@ export async function leaveAgoraChannel() {
     await client.leave();
     client = null;
   }
+}
+
+export function isAgoraJoined() {
+  return client !== null;
 }
 
 export { isPermissionError };
