@@ -553,30 +553,39 @@ export default function LiveRoomPage() {
       {room.participants && room.participants.length > 0 && (
         <section className="live-room__participants">
           <h2 className="rooms-page__section-title">In the room</h2>
-          <div className="live-room__participant-grid">
-            {room.participants.map((p) => (
-              <div key={p.id} className="live-room__participant">
-                <Avatar name={p.display_name} src={p.avatar_url || null} size="md" />
-                <span className="live-room__participant-name">{p.display_name}</span>
-                {p.role === "host" ? (
-                  <Badge tone="orange">Host</Badge>
-                ) : p.is_muted ? (
-                  <Badge tone="neutral">Muted</Badge>
-                ) : (
-                  <Badge tone="green">Live</Badge>
-                )}
-                {isHost && p.role !== "host" && isLive && (
-                  <button
-                    type="button"
-                    className="live-room__participant-menu"
-                    aria-label={`Manage ${p.display_name}`}
-                    onClick={() => setHostMenuUser(p)}
-                  >
-                    <Icon name="more" size={18} />
-                  </button>
-                )}
-              </div>
-            ))}
+          <div className="live-room__people">
+            {room.participants.map((p) => {
+              const canManage = isHost && p.role !== "host" && isLive;
+              return (
+                <div key={p.id} className="live-room__person">
+                  <div className="live-room__person-avatar">
+                    <Avatar name={p.display_name} src={p.avatar_url || null} size="md" />
+                    <span
+                      className={`live-room__person-status live-room__person-status--${
+                        p.is_muted ? "muted" : "live"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      <Icon name={p.is_muted ? "micOff" : "mic"} size={12} strokeWidth={2.4} />
+                    </span>
+                    {canManage && (
+                      <button
+                        type="button"
+                        className="live-room__person-menu"
+                        aria-label={`Manage ${p.display_name}`}
+                        onClick={() => setHostMenuUser(p)}
+                      >
+                        <Icon name="more" size={14} />
+                      </button>
+                    )}
+                  </div>
+                  <span className="live-room__person-name">{p.display_name}</span>
+                  {p.role === "host" && (
+                    <span className="live-room__person-host">Host</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
       )}
