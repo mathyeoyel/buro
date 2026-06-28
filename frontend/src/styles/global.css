@@ -1,5 +1,11 @@
 @import "./tokens.css";
 
+/*
+ * UI RULE: NO GRADIENTS. Buro uses flat solid colors only.
+ * Do not introduce linear-gradient, radial-gradient, or gradient-like
+ * backgrounds. Use solid brand colors, borders, shadows, and opacity instead.
+ */
+
 *,
 *::before,
 *::after {

@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--color-brown), var(--color-orange));
+  background-color: var(--color-brown);
   color: var(--color-cream);
   font-family: var(--font-family-heading);
   font-weight: var(--font-weight-bold);

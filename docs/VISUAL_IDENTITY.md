@@ -115,20 +115,37 @@ Recommended design qualities:
 
 ## Color Direction
 
-Final colors can be decided during UI design, but the palette should support:
+**No gradients. Use flat solid colors only.**
 
-- A distinctive primary brand color.
-- A clear live indicator color.
-- A calm background.
-- High contrast text.
-- Accessible disabled and muted states.
+Buro's UI must use flat, solid colors. Do not use CSS gradients, `linear-gradient`,
+`radial-gradient`, gradient-like backgrounds, gradient buttons, gradient cards, or
+gradient decorative effects. Borders, shadows, spacing, opacity, and subtle
+solid-color surfaces are allowed.
 
-Suggested starting direction:
+Approved solid palette:
 
-- Deep charcoal or near-black for audio-room atmosphere.
-- Warm yellow, orange, or coral accent for jazz energy.
-- Soft cream or off-white text surfaces.
-- Green or bright accent for live status.
+- Warm Orange `#F59E0B`
+- Deep Charcoal `#171717`
+- Earth Brown `#7A4A1D`
+- Soft Cream `#FFF7E8`
+- Live Green `#22C55E`
+- Danger Red `#EF4444`
+
+The palette should support:
+
+- A distinctive primary brand color (Warm Orange).
+- A clear live indicator color (Live Green).
+- A calm background (Deep Charcoal).
+- High contrast text (Soft Cream).
+- Accessible disabled and muted states (solid colors with opacity).
+
+Usage direction:
+
+- Deep charcoal for audio-room atmosphere.
+- Warm orange accent for jazz energy and primary actions.
+- Soft cream for text surfaces.
+- Green for live status.
+- Keep surfaces flat and disciplined — depth comes from borders and shadows, never gradients.
 
 ## Typography Direction
 

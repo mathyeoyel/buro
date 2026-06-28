@@ -1,6 +1,10 @@
 /**
  * Buro design tokens — see docs/VISUAL_IDENTITY.md
  * Warm, playful, local, audio-first. Soft cream on deep charcoal.
+ *
+ * UI RULE: NO GRADIENTS. Use flat solid colors only.
+ * No linear-gradient / radial-gradient / gradient-like backgrounds anywhere.
+ * Borders, shadows, spacing, opacity, and solid-color surfaces only.
  */
 :root {
   /* --- Brand palette --- */
