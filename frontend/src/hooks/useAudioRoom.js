@@ -166,11 +166,11 @@ function audioStatusLabel(status, provider) {
   if (status === "connected") {
     return provider === "mock" ? "Mock audio ready" : "Audio ready";
   }
-  if (status === "connecting") return "Connecting audio…";
+  if (status === "connecting") return "Connecting…";
   if (status === "reconnecting") return "Reconnecting…";
-  if (status === "permission_denied") return "Mic permission needed";
+  if (status === "permission_denied") return "Allow mic to talk";
   if (status === "error") return "Audio not connected";
-  return "Audio comes next";
+  return "Getting ready…";
 }
 
 function canUseMicToggle({ isParticipant, isEnded, provider, status }) {

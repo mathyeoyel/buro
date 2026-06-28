@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Avatar,
+  Badge,
   BottomSheet,
+  BuroLogo,
   Button,
   FloatingReaction,
   Icon,
@@ -445,14 +447,19 @@ export default function LiveRoomPage() {
   if (!room && error) {
     return (
       <div className="live-room">
-        <p className="rooms-page__error">{error}</p>
-        <Button
-          variant="secondary"
-          leadingIcon={<Icon name="back" size={18} />}
-          onClick={() => navigate("/rooms")}
-        >
-          Back to rooms
-        </Button>
+        <div className="live-room__state">
+          <span className="live-room__state-icon live-room__state-icon--danger">
+            <Icon name="block" size={26} />
+          </span>
+          <p className="live-room__state-text">{error}</p>
+          <Button
+            variant="secondary"
+            leadingIcon={<Icon name="back" size={18} />}
+            onClick={() => navigate("/rooms")}
+          >
+            Back to rooms
+          </Button>
+        </div>
       </div>
     );
   }
@@ -460,19 +467,24 @@ export default function LiveRoomPage() {
   if (moderationOutcome) {
     return (
       <div className="live-room">
-        <div className="live-room__ended">
-          {moderationOutcome === "blocked"
-            ? "You cannot rejoin this room."
-            : "You were removed from this room."}
+        <div className="live-room__state">
+          <span className="live-room__state-icon live-room__state-icon--danger">
+            <Icon name={moderationOutcome === "blocked" ? "block" : "leave"} size={26} />
+          </span>
+          <p className="live-room__state-text">
+            {moderationOutcome === "blocked"
+              ? "You cannot rejoin this room."
+              : "You were removed from this room."}
+          </p>
+          <Button
+            variant="secondary"
+            fullWidth
+            leadingIcon={<Icon name="back" size={18} />}
+            onClick={() => navigate("/rooms")}
+          >
+            Back to rooms
+          </Button>
         </div>
-        <Button
-          variant="secondary"
-          fullWidth
-          leadingIcon={<Icon name="back" size={18} />}
-          onClick={() => navigate("/rooms")}
-        >
-          Back to rooms
-        </Button>
       </div>
     );
   }
@@ -492,19 +504,28 @@ export default function LiveRoomPage() {
         ))}
       </div>
 
+      <div className="live-room__topbar">
+        <BuroLogo size="sm" />
+      </div>
+
       <div className="live-room__header">
         <h1 className="live-room__title">{room.title}</h1>
         <div className="live-room__meta">
           {isLive && <LiveBadge />}
           <OpenMicBadge />
-          <span>{room.category}</span>
-          <span>{room.participant_count} in the room</span>
+          <span className="live-room__chip">{room.category}</span>
+          <span className="live-room__chip">
+            {room.participant_count} {room.participant_count === 1 ? "person" : "people"}
+          </span>
         </div>
       </div>
 
       {isEnded && (
         <div className="live-room__ended">
-          This room has ended. Thanks for jazzing.
+          <span className="live-room__state-icon">
+            <Icon name="end" size={20} />
+          </span>
+          This room has ended.
         </div>
       )}
 
@@ -514,34 +535,41 @@ export default function LiveRoomPage() {
           src={room.host?.avatar_url || null}
           size="md"
         />
-        <div>
+        <div className="live-room__host-info">
           <strong>{room.host?.display_name}</strong>
-          <p className="live-room__meta">Host</p>
+          <span className="live-room__host-sub">Started this Buro</span>
         </div>
+        <Badge tone="orange">Host</Badge>
       </div>
 
       {room.participants && room.participants.length > 0 && (
         <section className="live-room__participants">
           <h2 className="rooms-page__section-title">In the room</h2>
-          {room.participants.map((p) => (
-            <div key={p.id} className="live-room__participant">
-              <Avatar name={p.display_name} src={p.avatar_url || null} size="sm" />
-              <span className="live-room__participant-name">{p.display_name}</span>
-              <span className="live-room__participant-role">
-                {p.role === "host" ? "Host" : p.is_muted ? "Muted" : "Live"}
-              </span>
-              {isHost && p.role !== "host" && isLive && (
-                <button
-                  type="button"
-                  className="live-room__participant-menu"
-                  aria-label={`Manage ${p.display_name}`}
-                  onClick={() => setHostMenuUser(p)}
-                >
-                  <Icon name="more" size={18} />
-                </button>
-              )}
-            </div>
-          ))}
+          <div className="live-room__participant-grid">
+            {room.participants.map((p) => (
+              <div key={p.id} className="live-room__participant">
+                <Avatar name={p.display_name} src={p.avatar_url || null} size="md" />
+                <span className="live-room__participant-name">{p.display_name}</span>
+                {p.role === "host" ? (
+                  <Badge tone="orange">Host</Badge>
+                ) : p.is_muted ? (
+                  <Badge tone="neutral">Muted</Badge>
+                ) : (
+                  <Badge tone="green">Live</Badge>
+                )}
+                {isHost && p.role !== "host" && isLive && (
+                  <button
+                    type="button"
+                    className="live-room__participant-menu"
+                    aria-label={`Manage ${p.display_name}`}
+                    onClick={() => setHostMenuUser(p)}
+                  >
+                    <Icon name="more" size={18} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         </section>
       )}
 
@@ -557,7 +585,7 @@ export default function LiveRoomPage() {
           <p className="live-room__audio-status">{audioLabel}</p>
           {audioStatus === "permission_denied" && (
             <button type="button" className="live-room__audio-retry" onClick={retryMic}>
-              Retry mic
+              Allow mic
             </button>
           )}
         </div>
