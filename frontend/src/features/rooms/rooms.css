@@ -94,7 +94,7 @@
 .live-room {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
 }
 
 .live-room__header {
@@ -104,7 +104,9 @@
 }
 
 .live-room__title {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-bold);
 }
 
 .live-room__meta {
@@ -119,13 +121,27 @@
 .live-room__host {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+}
+
+.live-room__host strong {
+  font-size: var(--font-size-base);
+}
+
+.live-room__host .live-room__meta {
+  margin-top: 2px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 .live-room__participants {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
 }
 
 .live-room__participant {
@@ -141,19 +157,27 @@
 .live-room__participant-name {
   flex: 1;
   font-size: var(--font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .live-room__participant-role {
+  flex-shrink: 0;
   font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-muted);
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-muted);
 }
 
 .live-room__audio-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-xl);
+  gap: var(--space-sm);
+  padding: var(--space-lg);
   border-radius: var(--radius-lg);
   background-color: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
@@ -163,21 +187,25 @@
 .live-room__audio-placeholder p {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
+  max-width: 28ch;
 }
 
 .live-room__actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
 }
 
 .live-room__ended {
-  padding: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-md);
   background-color: var(--color-bg-muted);
   border: 1px solid var(--color-border);
   text-align: center;
   color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
 }
 
 .live-room__edit-form {
@@ -317,8 +345,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-lg);
+  padding: var(--space-xs);
+  border-radius: var(--radius-full);
   background-color: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
 }
@@ -327,15 +355,19 @@
   flex: 1;
   min-height: var(--touch-target-min);
   border: none;
-  border-radius: var(--radius-md);
-  background-color: var(--color-bg-base);
+  border-radius: var(--radius-full);
+  background-color: transparent;
   font-size: 1.35rem;
   cursor: pointer;
-  transition: transform var(--transition-fast);
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.live-room__reaction-btn:hover:not(:disabled) {
+  background-color: var(--color-bg-muted);
 }
 
 .live-room__reaction-btn:active:not(:disabled) {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 .live-room__reaction-btn:disabled {
@@ -348,8 +380,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  min-height: 280px;
-  max-height: 50vh;
+  min-height: 300px;
+  max-height: 55vh;
 }
 
 .room-chat__list {
@@ -357,8 +389,12 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-md);
   padding-right: var(--space-xs);
+}
+
+.room-chat__list > * {
+  flex-shrink: 0;
 }
 
 .room-chat__message {
@@ -386,6 +422,7 @@
 
 .room-chat__body {
   font-size: var(--font-size-sm);
+  line-height: var(--line-height-base);
   color: var(--color-text-primary);
   word-break: break-word;
 }
@@ -394,6 +431,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
 }
 
 .room-chat__input {
