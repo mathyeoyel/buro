@@ -82,12 +82,11 @@ def join_room(user, room):
     existing = RoomParticipant.objects.filter(room=room, user=user).first()
 
     if existing and existing.is_active:
-        return existing
+        return existing, False
 
     assert_can_join_room(user, room)
 
     if existing:
-        # Rejoin: reactivate prior participant row (documented choice).
         existing.left_at = None
         existing.is_removed = False
         existing.is_muted = True
@@ -96,17 +95,32 @@ def join_room(user, room):
         existing.save(
             update_fields=["left_at", "is_removed", "is_muted", "role", "joined_at"]
         )
-        return existing
+        return existing, True
 
     if participant_count(room) >= room.max_participants:
         raise ValidationError({"detail": "This room is full."})
 
-    return RoomParticipant.objects.create(
+    participant = RoomParticipant.objects.create(
         room=room,
         user=user,
         role=RoomParticipant.Role.LISTENER,
         is_muted=True,
     )
+    return participant, True
+
+
+def set_participant_muted(user, room, muted: bool):
+    participant = RoomParticipant.objects.filter(
+        room=room, user=user, left_at__isnull=True, is_removed=False
+    ).select_related("user__profile").first()
+    if not participant:
+        raise ValidationError({"detail": "You are not in this room."})
+    if not room.is_live:
+        raise ValidationError({"detail": "This room has ended."})
+
+    participant.is_muted = muted
+    participant.save(update_fields=["is_muted"])
+    return participant
 
 
 def leave_room(user, room):

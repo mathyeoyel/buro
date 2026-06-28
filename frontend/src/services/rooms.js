@@ -34,6 +34,11 @@ export async function updateRoom(roomId, payload) {
   return response.data.room;
 }
 
+export async function setMuted(roomId, muted) {
+  const response = await api.post(`/rooms/${roomId}/mute/`, { muted });
+  return response.data.participant;
+}
+
 export function extractRoomError(error) {
   const data = error?.response?.data;
   if (!data) return "Something went wrong. Try again.";

@@ -4,9 +4,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .broadcasts import (
+    broadcast_participant_joined,
+    broadcast_participant_left,
+    broadcast_participant_muted,
+    broadcast_participant_unmuted,
+    broadcast_room_ended,
+    broadcast_room_updated,
+)
 from .models import Room
-from .serializers import RoomSerializer, StartRoomSerializer, UpdateRoomSerializer
-from .services import end_room, join_room, leave_room, start_room
+from .serializers import ParticipantSerializer, RoomSerializer, StartRoomSerializer, UpdateRoomSerializer
+from .services import end_room, join_room, leave_room, participant_count, set_participant_muted, start_room
 
 
 class LiveRoomsView(APIView):
@@ -60,6 +68,8 @@ class RoomDetailView(APIView):
         serializer = UpdateRoomSerializer(room, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        room.refresh_from_db()
+        broadcast_room_updated(room.id, room, request=request)
         out = RoomSerializer(
             room, context={"request": request, "include_participants": True}
         )
@@ -81,7 +91,14 @@ class JoinRoomView(APIView):
         room = get_object_or_404(
             Room.objects.select_related("host__profile"), pk=room_id
         )
-        join_room(request.user, room)
+        participant, should_broadcast = join_room(request.user, room)
+        if should_broadcast:
+            participant = (
+                room.participants.select_related("user__profile")
+                .filter(pk=participant.pk)
+                .first()
+            )
+            broadcast_participant_joined(room.id, participant)
         serializer = RoomSerializer(
             room, context={"request": request, "include_participants": True}
         )
@@ -94,7 +111,38 @@ class LeaveRoomView(APIView):
     def post(self, request, room_id):
         room = get_object_or_404(Room, pk=room_id)
         leave_room(request.user, room)
+        broadcast_participant_left(room.id, request.user.id, participant_count(room))
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class MuteRoomView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, room_id):
+        room = get_object_or_404(Room, pk=room_id)
+        muted = request.data.get("muted")
+        if muted is None:
+            current = room.participants.filter(
+                user=request.user, left_at__isnull=True, is_removed=False
+            ).first()
+            if not current:
+                return Response({"detail": "You are not in this room."}, status=status.HTTP_400_BAD_REQUEST)
+            muted = not current.is_muted
+        else:
+            muted = bool(muted)
+
+        participant = set_participant_muted(request.user, room, muted)
+        participant = (
+            room.participants.select_related("user__profile")
+            .filter(pk=participant.pk)
+            .first()
+        )
+        if muted:
+            broadcast_participant_muted(room.id, participant)
+        else:
+            broadcast_participant_unmuted(room.id, participant)
+
+        return Response({"participant": ParticipantSerializer(participant).data})
 
 
 class EndRoomView(APIView):
@@ -103,5 +151,7 @@ class EndRoomView(APIView):
     def post(self, request, room_id):
         room = get_object_or_404(Room, pk=room_id)
         end_room(request.user, room)
+        room.refresh_from_db()
+        broadcast_room_ended(room.id, room, request=request)
         serializer = RoomSerializer(room, context={"request": request})
         return Response({"room": serializer.data})

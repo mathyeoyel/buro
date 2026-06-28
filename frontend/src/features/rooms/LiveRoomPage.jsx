@@ -10,23 +10,98 @@ import {
   MicIconButton,
   OpenMicBadge,
 } from "../../components";
+import { useAuth } from "../../context/AuthContext";
+import { useRoomSocket } from "../../hooks/useRoomSocket";
 import {
   endRoom,
   extractRoomError,
   getRoom,
   joinRoom,
   leaveRoom,
+  setMuted,
   updateRoom,
 } from "../../services/rooms";
 import "./rooms.css";
 
+function upsertParticipant(participants, participant) {
+  const list = participants ?? [];
+  const idx = list.findIndex((p) => p.id === participant.id);
+  if (idx === -1) return [...list, participant];
+  const next = [...list];
+  next[idx] = { ...next[idx], ...participant };
+  return next;
+}
+
+function applyRoomEvent(prev, event) {
+  if (!prev) return prev;
+
+  const { type, payload } = event;
+
+  switch (type) {
+    case "room.snapshot":
+      return {
+        ...prev,
+        ...payload.room,
+        participants: payload.participants,
+        participant_count: payload.participant_count,
+      };
+
+    case "participant.joined": {
+      const participants = upsertParticipant(prev.participants, payload.participant);
+      return {
+        ...prev,
+        participants,
+        participant_count: participants.length,
+      };
+    }
+
+    case "participant.left": {
+      const participants = (prev.participants ?? []).filter(
+        (p) => p.id !== payload.user_id
+      );
+      return {
+        ...prev,
+        participants,
+        participant_count: payload.participant_count ?? participants.length,
+      };
+    }
+
+    case "participant.muted":
+    case "participant.unmuted": {
+      const participants = upsertParticipant(prev.participants, payload.participant);
+      return { ...prev, participants };
+    }
+
+    case "room.updated":
+      return {
+        ...prev,
+        ...payload.room,
+        participants: payload.room.participants ?? prev.participants,
+      };
+
+    case "room.ended":
+      return {
+        ...prev,
+        ...payload.room,
+        status: "ended",
+        ended_at: payload.ended_at ?? payload.room?.ended_at,
+        participants: payload.room.participants ?? prev.participants,
+      };
+
+    default:
+      return prev;
+  }
+}
+
 export default function LiveRoomPage() {
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [muteLoading, setMuteLoading] = useState(false);
   const [error, setError] = useState("");
   const [showEdit, setShowEdit] = useState(false);
   const [editForm, setEditForm] = useState({ title: "", category: "" });
@@ -48,17 +123,28 @@ export default function LiveRoomPage() {
     loadRoom();
   }, [loadRoom]);
 
+  const handleSocketEvent = useCallback((event) => {
+    setRoom((prev) => applyRoomEvent(prev, event));
+  }, []);
+
   const isHost = room?.current_user_role === "host";
   const isParticipant = room?.current_user_is_participant;
   const isEnded = room?.status === "ended";
   const isLive = room?.status === "live";
+
+  const currentParticipant = room?.participants?.find((p) => p.id === user?.id);
+  const isMuted = currentParticipant?.is_muted ?? true;
+
+  useRoomSocket(roomId, {
+    enabled: Boolean(room && isParticipant && isLive),
+    onEvent: handleSocketEvent,
+  });
 
   const runAction = async (action) => {
     setActionLoading(true);
     setError("");
     try {
       await action();
-      await loadRoom();
     } catch (err) {
       setError(extractRoomError(err));
     } finally {
@@ -66,16 +152,32 @@ export default function LiveRoomPage() {
     }
   };
 
-  const handleJoin = () => runAction(() => joinRoom(roomId));
+  const handleJoin = () =>
+    runAction(async () => {
+      const data = await joinRoom(roomId);
+      setRoom(data);
+    });
+
   const handleLeave = () =>
     runAction(async () => {
       await leaveRoom(roomId);
       navigate("/rooms");
     });
-  const handleEnd = () =>
-    runAction(async () => {
-      await endRoom(roomId);
-    });
+
+  const handleEnd = () => runAction(() => endRoom(roomId));
+
+  const handleToggleMute = async () => {
+    if (!isParticipant || isEnded || muteLoading) return;
+    setMuteLoading(true);
+    setError("");
+    try {
+      await setMuted(roomId, !isMuted);
+    } catch (err) {
+      setError(extractRoomError(err));
+    } finally {
+      setMuteLoading(false);
+    }
+  };
 
   const handleSaveEdit = async (e) => {
     e.preventDefault();
@@ -84,7 +186,6 @@ export default function LiveRoomPage() {
     try {
       await updateRoom(roomId, editForm);
       setShowEdit(false);
-      await loadRoom();
     } catch (err) {
       setError(extractRoomError(err));
     } finally {
@@ -106,6 +207,8 @@ export default function LiveRoomPage() {
       </div>
     );
   }
+
+  const actionsDisabled = isEnded || actionLoading;
 
   return (
     <div className="live-room">
@@ -152,16 +255,24 @@ export default function LiveRoomPage() {
         </section>
       )}
 
-      <div className="live-room__audio-placeholder">
-        <MicIconButton muted size="lg" />
-        <p>Audio comes next. For now, enjoy the room vibe.</p>
-      </div>
+      {isParticipant && isLive && (
+        <div className="live-room__audio-placeholder">
+          <MicIconButton
+            muted={isMuted}
+            size="lg"
+            disabled={muteLoading}
+            onClick={handleToggleMute}
+            statusText={isMuted ? "Tap to talk" : "You're live"}
+          />
+          <p>{isMuted ? "Muted — tap the mic when you're ready." : "You're on mic (UI only for now)."}</p>
+        </div>
+      )}
 
       {error && <p className="rooms-page__error">{error}</p>}
 
       <div className="live-room__actions">
         {isLive && !isParticipant && (
-          <Button size="lg" fullWidth disabled={actionLoading} onClick={handleJoin}>
+          <Button size="lg" fullWidth disabled={actionsDisabled} onClick={handleJoin}>
             Join room
           </Button>
         )}
@@ -169,7 +280,7 @@ export default function LiveRoomPage() {
           <Button
             variant="secondary"
             fullWidth
-            disabled={actionLoading}
+            disabled={actionsDisabled}
             onClick={handleLeave}
           >
             Leave room
@@ -177,13 +288,18 @@ export default function LiveRoomPage() {
         )}
         {isLive && isHost && (
           <>
-            <Button variant="secondary" fullWidth onClick={() => setShowEdit(true)}>
+            <Button
+              variant="secondary"
+              fullWidth
+              disabled={actionsDisabled}
+              onClick={() => setShowEdit(true)}
+            >
               Edit title & category
             </Button>
             <Button
               variant="danger"
               fullWidth
-              disabled={actionLoading}
+              disabled={actionsDisabled}
               onClick={handleEnd}
             >
               End room
@@ -196,7 +312,7 @@ export default function LiveRoomPage() {
       </div>
 
       <BottomSheet
-        open={showEdit}
+        open={showEdit && isLive}
         onClose={() => setShowEdit(false)}
         title="Edit room"
       >
