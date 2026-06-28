@@ -1,0 +1,294 @@
+.rooms-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.rooms-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.rooms-page__heading {
+  font-size: var(--font-size-xl);
+}
+
+.rooms-page__subtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-top: calc(-1 * var(--space-sm));
+}
+
+.rooms-page__section-title {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-sm);
+}
+
+.rooms-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.rooms-page__error {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  font-size: var(--font-size-sm);
+}
+
+/* Room card */
+.room-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.room-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.room-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.room-card__count {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.room-card__title {
+  font-size: var(--font-size-lg);
+}
+
+.room-card__category {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.room-card__host {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.room-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+/* Live room page */
+.live-room {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.live-room__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.live-room__title {
+  font-size: var(--font-size-2xl);
+}
+
+.live-room__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.live-room__host {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.live-room__participants {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.live-room__participant {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+}
+
+.live-room__participant-name {
+  flex: 1;
+  font-size: var(--font-size-sm);
+}
+
+.live-room__participant-role {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.live-room__audio-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.live-room__audio-placeholder p {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.live-room__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.live-room__ended {
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.live-room__edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Start room sheet — compact social layout */
+.start-room-sheet__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.start-room-sheet__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.start-room-sheet__center {
+  flex: 1;
+  min-width: 0;
+}
+
+.start-room-sheet__title-prompt {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-sm) 0;
+  background-color: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+}
+
+.start-room-sheet__title-prompt:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.start-room-sheet__title-input {
+  width: 100%;
+  padding: var(--space-sm) 0;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-base);
+}
+
+.start-room-sheet__title-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.start-room-sheet__title-input:focus {
+  outline: none;
+  border-bottom-color: var(--color-orange);
+}
+
+.start-room-sheet__category-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+  padding: var(--space-xs) var(--space-sm);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
+.start-room-sheet__category-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.start-room-sheet__plus {
+  font-size: var(--font-size-base);
+  color: var(--color-orange);
+  line-height: 1;
+}
+
+.start-room-sheet__category-input {
+  width: 100%;
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-md);
+  background-color: var(--color-bg-base);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+}
+
+.start-room-sheet__category-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.start-room-sheet__category-input:focus {
+  outline: none;
+  border-color: var(--color-orange);
+}
+
+.start-room-sheet__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
