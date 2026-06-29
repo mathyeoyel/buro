@@ -163,6 +163,11 @@ export default function LiveRoomPage() {
   const [reactionSending, setReactionSending] = useState(false);
   const [floatingReactions, setFloatingReactions] = useState([]);
   const seenReactionsRef = useRef(new Set());
+  const [floatingMessages, setFloatingMessages] = useState([]);
+  const seenChatRef = useRef(new Set());
+  const chatTimersRef = useRef([]);
+  const showChatRef = useRef(false);
+  const previewsBlockedRef = useRef(false);
   const leavingRef = useRef(false);
 
   const [moderationOutcome, setModerationOutcome] = useState(null);
@@ -208,6 +213,33 @@ export default function LiveRoomPage() {
     }, 2500);
   }, []);
 
+  const addFloatingMessage = useCallback((message) => {
+    if (!message) return;
+    // Suppress while the chat sheet is open (avoids duplicate display) and in
+    // ended/removed/blocked states.
+    if (showChatRef.current || previewsBlockedRef.current) return;
+
+    const messageId = message.id;
+    if (messageId != null) {
+      if (seenChatRef.current.has(messageId)) return;
+      seenChatRef.current.add(messageId);
+    }
+    const key = messageId ?? `local-${Date.now()}-${Math.random()}`;
+    const name = message.sender?.display_name ?? "Someone";
+    const body = message.body ?? "";
+    const left = 22 + Math.random() * 50;
+    const drift = Math.round(Math.random() * 28 - 14);
+    setFloatingMessages((prev) => {
+      const next = [...prev, { key, name, body, left, drift }];
+      return next.length > 3 ? next.slice(-3) : next;
+    });
+    const timer = setTimeout(() => {
+      setFloatingMessages((prev) => prev.filter((item) => item.key !== key));
+      if (messageId != null) seenChatRef.current.delete(messageId);
+    }, 3600);
+    chatTimersRef.current.push(timer);
+  }, []);
+
   const isHost = room?.current_user_role === "host";
   const isParticipant = room?.current_user_is_participant;
   const isEnded = room?.status === "ended";
@@ -216,6 +248,26 @@ export default function LiveRoomPage() {
   const currentParticipant = room?.participants?.find((p) => p.id === user?.id);
   const isMuted = currentParticipant?.is_muted ?? true;
   const socialDisabled = !isParticipant || isEnded || Boolean(moderationOutcome);
+
+  showChatRef.current = showChat;
+  previewsBlockedRef.current = isEnded || Boolean(moderationOutcome);
+
+  useEffect(() => {
+    if (isEnded || moderationOutcome) {
+      chatTimersRef.current.forEach(clearTimeout);
+      chatTimersRef.current = [];
+      seenChatRef.current.clear();
+      setFloatingMessages([]);
+    }
+  }, [isEnded, moderationOutcome]);
+
+  useEffect(
+    () => () => {
+      chatTimersRef.current.forEach(clearTimeout);
+      chatTimersRef.current = [];
+    },
+    []
+  );
 
   const {
     status: audioStatus,
@@ -231,6 +283,7 @@ export default function LiveRoomPage() {
     (event) => {
       if (event.type === "chat.message") {
         setMessages((prev) => appendMessage(prev, event.payload.message));
+        addFloatingMessage(event.payload.message);
         return;
       }
       if (event.type === "reaction.sent") {
@@ -251,7 +304,7 @@ export default function LiveRoomPage() {
       }
       setRoom((prev) => applyRoomEvent(prev, event));
     },
-    [addFloatingReaction, disconnectAudio, user?.id]
+    [addFloatingReaction, addFloatingMessage, disconnectAudio, user?.id]
   );
 
   useRoomSocket(roomId, {
@@ -632,6 +685,21 @@ export default function LiveRoomPage() {
             })}
           </div>
         </section>
+      )}
+
+      {floatingMessages.length > 0 && (
+        <div className="live-room__chat-layer" aria-hidden="true">
+          {floatingMessages.map((message) => (
+            <div
+              key={message.key}
+              className="live-room__chat-preview"
+              style={{ left: `${message.left}%`, "--chat-drift": `${message.drift}px` }}
+            >
+              <strong className="live-room__chat-preview-name">{message.name}</strong>
+              <span className="live-room__chat-preview-body">{message.body}</span>
+            </div>
+          ))}
+        </div>
       )}
 
       {error && <p className="rooms-page__error">{error}</p>}
