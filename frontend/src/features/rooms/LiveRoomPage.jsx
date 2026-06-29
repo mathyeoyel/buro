@@ -160,7 +160,6 @@ export default function LiveRoomPage() {
   const [chatSending, setChatSending] = useState(false);
   const [messages, setMessages] = useState([]);
 
-  const [showReactions, setShowReactions] = useState(false);
   const [reactionSending, setReactionSending] = useState(false);
   const [floatingReactions, setFloatingReactions] = useState([]);
   const seenReactionsRef = useRef(new Set());
@@ -169,6 +168,7 @@ export default function LiveRoomPage() {
   const [moderationOutcome, setModerationOutcome] = useState(null);
   const [hostMenuUser, setHostMenuUser] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
+  const [showRoomMenu, setShowRoomMenu] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
   const [reportReason, setReportReason] = useState("spam");
@@ -304,7 +304,6 @@ export default function LiveRoomPage() {
     try {
       const reaction = await sendRoomReaction(roomId, reactionType);
       addFloatingReaction(reaction);
-      setShowReactions(false);
     } catch (err) {
       setError(extractRoomError(err));
     } finally {
@@ -503,6 +502,51 @@ export default function LiveRoomPage() {
         ))}
       </div>
 
+      <div className="live-room__actionbar">
+        <button
+          type="button"
+          className="live-room__icon-btn"
+          aria-label="Back to rooms"
+          onClick={() => navigate("/rooms")}
+        >
+          <Icon name="back" size={20} />
+        </button>
+        <div className="live-room__actionbar-right">
+          {isLive && isParticipant && !isHost && (
+            <Button
+              variant="secondary"
+              size="sm"
+              leadingIcon={<Icon name="leave" size={16} />}
+              disabled={actionsDisabled}
+              onClick={handleLeave}
+            >
+              Leave
+            </Button>
+          )}
+          {isLive && isHost && (
+            <Button
+              variant="danger"
+              size="sm"
+              leadingIcon={<Icon name="end" size={16} />}
+              disabled={actionsDisabled}
+              onClick={handleEnd}
+            >
+              {isEndingRoom ? "Ending…" : "End"}
+            </Button>
+          )}
+          {isParticipant && isLive && (
+            <button
+              type="button"
+              className="live-room__icon-btn"
+              aria-label="Room options"
+              onClick={() => setShowRoomMenu(true)}
+            >
+              <Icon name="more" size={20} />
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="live-room__header">
         <div className="live-room__title-row">
           <h1 className="live-room__title">{room.title}</h1>
@@ -590,119 +634,87 @@ export default function LiveRoomPage() {
         </section>
       )}
 
-      {isParticipant && isLive && (
-        <div className="live-room__audio-placeholder">
-          <MicIconButton
-            muted={isMuted}
-            size="lg"
-            disabled={!micEnabled || muteLoading}
-            onClick={handleToggleMute}
-            statusText={isMuted ? "Tap to talk" : "You're live"}
-          />
-          <p className="live-room__audio-status">{audioLabel}</p>
-          {audioStatus === "permission_denied" && (
-            <button type="button" className="live-room__audio-retry" onClick={retryMic}>
-              Allow mic
-            </button>
-          )}
+      {error && <p className="rooms-page__error">{error}</p>}
+
+      {isLive && !isParticipant && (
+        <div className="live-room__actions">
+          <Button size="lg" fullWidth disabled={actionsDisabled} onClick={handleJoin}>
+            Join room
+          </Button>
         </div>
       )}
 
-      {isParticipant && (
-        <div className="live-room__social">
-          <Button
-            variant="secondary"
-            fullWidth
-            leadingIcon={<Icon name="chat" size={18} />}
+      {isParticipant && isLive && (
+        <div className="live-room__dock">
+          <button
+            type="button"
+            className="live-room__dock-action"
             disabled={socialDisabled}
             onClick={handleOpenChat}
           >
-            Chat
-          </Button>
-          <Button
-            variant="secondary"
-            fullWidth
-            leadingIcon={<Icon name="react" size={18} />}
-            disabled={socialDisabled}
-            onClick={() => setShowReactions((open) => !open)}
+            <span className="live-room__dock-icon">
+              <Icon name="chat" size={22} />
+            </span>
+            <span className="live-room__dock-label">Chat</span>
+          </button>
+
+          <div className="live-room__dock-mic">
+            <MicIconButton
+              muted={isMuted}
+              size="lg"
+              disabled={!micEnabled || muteLoading}
+              onClick={handleToggleMute}
+              statusText={isMuted ? "Tap to talk" : "You're live"}
+            />
+            <span className="live-room__dock-status">{audioLabel}</span>
+            {audioStatus === "permission_denied" && (
+              <button type="button" className="live-room__audio-retry" onClick={retryMic}>
+                Allow mic
+              </button>
+            )}
+          </div>
+
+          <div
+            className="live-room__dock-reactions"
+            role="group"
+            aria-label="Send a reaction"
           >
-            React
-          </Button>
+            {REACTION_OPTIONS.map((option) => (
+              <button
+                key={option.type}
+                type="button"
+                className="live-room__dock-reaction"
+                disabled={socialDisabled || reactionSending}
+                aria-label={option.label}
+                onClick={() => handleSendReaction(option.type)}
+              >
+                <span aria-hidden="true">{option.emoji}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
-      {isParticipant && isLive && (
-        <div className="live-room__report-row">
+      <BottomSheet
+        open={showRoomMenu}
+        onClose={() => setShowRoomMenu(false)}
+        title="Room options"
+      >
+        <div className="live-room__host-actions">
           <Button
-            variant="ghost"
-            size="sm"
-            leadingIcon={<Icon name="report" size={16} />}
+            variant="secondary"
+            fullWidth
+            leadingIcon={<Icon name="report" size={18} />}
             onClick={() => {
               setReportTarget(null);
               setShowReport(true);
+              setShowRoomMenu(false);
             }}
           >
             Report room
           </Button>
         </div>
-      )}
-
-      {showReactions && isParticipant && !isEnded && (
-        <div className="live-room__reaction-picker">
-          {REACTION_OPTIONS.map((option) => (
-            <button
-              key={option.type}
-              type="button"
-              className="live-room__reaction-btn"
-              disabled={reactionSending}
-              aria-label={option.label}
-              onClick={() => handleSendReaction(option.type)}
-            >
-              <span aria-hidden="true">{option.emoji}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {error && <p className="rooms-page__error">{error}</p>}
-
-      <div className="live-room__actions">
-        {isLive && !isParticipant && (
-          <Button size="lg" fullWidth disabled={actionsDisabled} onClick={handleJoin}>
-            Join room
-          </Button>
-        )}
-        {isLive && isParticipant && !isHost && (
-          <Button
-            variant="secondary"
-            fullWidth
-            leadingIcon={<Icon name="leave" size={18} />}
-            disabled={actionsDisabled}
-            onClick={handleLeave}
-          >
-            Leave room
-          </Button>
-        )}
-        {isLive && isHost && (
-          <Button
-            variant="danger"
-            fullWidth
-            leadingIcon={<Icon name="end" size={18} />}
-            disabled={actionsDisabled}
-            onClick={handleEnd}
-          >
-            {isEndingRoom ? "Ending…" : "End room"}
-          </Button>
-        )}
-        <Button
-          variant="ghost"
-          fullWidth
-          leadingIcon={<Icon name="back" size={18} />}
-          onClick={() => navigate("/rooms")}
-        >
-          Back to rooms
-        </Button>
-      </div>
+      </BottomSheet>
 
       <BottomSheet open={showChat} onClose={() => setShowChat(false)} title="Room chat">
         <RoomChatSheet
