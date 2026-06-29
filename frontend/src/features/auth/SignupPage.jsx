@@ -68,21 +68,9 @@ export default function SignupPage() {
           required
           autoComplete="email"
         />
-        <Input
-          label="Password"
-          name="password"
-          type="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder="At least 8 characters"
-          required
-          minLength={8}
-          autoComplete="new-password"
-        />
 
         <fieldset className="auth-form__gender">
           <legend className="auth-form__gender-label">Gender</legend>
-          <p className="auth-form__gender-hint">Used for your Buro avatar.</p>
           <div className="auth-form__gender-options">
             <label className="auth-form__gender-option">
               <input
@@ -106,6 +94,18 @@ export default function SignupPage() {
             </label>
           </div>
         </fieldset>
+
+        <Input
+          label="Password"
+          name="password"
+          type="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder="At least 8 characters"
+          required
+          minLength={8}
+          autoComplete="new-password"
+        />
 
         <Button type="submit" size="lg" fullWidth disabled={loading}>
           {loading ? "Creating account…" : "Start Jazzing"}

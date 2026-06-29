@@ -68,11 +68,6 @@
   color: var(--color-text-primary);
 }
 
-.auth-form__gender-hint {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
 .auth-form__gender-options {
   display: flex;
   gap: var(--space-sm);

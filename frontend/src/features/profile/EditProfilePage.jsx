@@ -77,7 +77,6 @@ export default function EditProfilePage() {
 
         <fieldset className="auth-form__gender">
           <legend className="auth-form__gender-label">Gender</legend>
-          <p className="auth-form__gender-hint">Used for your Buro avatar when no photo is set.</p>
           <div className="auth-form__gender-options">
             <label className="auth-form__gender-option">
               <input
