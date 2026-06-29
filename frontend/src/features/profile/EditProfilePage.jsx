@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Input } from "../../components";
+import { Button, Input, Avatar } from "../../components";
 import { useAuth } from "../../context/AuthContext";
 import "../auth/AuthForm.css";
 
@@ -11,6 +11,7 @@ export default function EditProfilePage() {
     display_name: profile?.display_name || "",
     bio: profile?.bio || "",
     avatar_url: profile?.avatar_url || "",
+    gender: profile?.gender || "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,6 +34,8 @@ export default function EditProfilePage() {
     }
   };
 
+  const previewProfile = { ...profile, ...form };
+
   return (
     <div className="auth-page">
       <div className="auth-page__header">
@@ -42,6 +45,10 @@ export default function EditProfilePage() {
 
       <form className="auth-form" onSubmit={handleSubmit}>
         {error && <p className="auth-form__error">{error}</p>}
+
+        <div className="auth-form__avatar-preview">
+          <Avatar name={form.display_name} profile={previewProfile} size="lg" />
+        </div>
 
         <Input
           label="Display name"
@@ -67,6 +74,33 @@ export default function EditProfilePage() {
           placeholder="https://…"
           hint="Optional — paste an image link."
         />
+
+        <fieldset className="auth-form__gender">
+          <legend className="auth-form__gender-label">Gender</legend>
+          <p className="auth-form__gender-hint">Used for your Buro avatar when no photo is set.</p>
+          <div className="auth-form__gender-options">
+            <label className="auth-form__gender-option">
+              <input
+                type="radio"
+                name="gender"
+                value="male"
+                checked={form.gender === "male"}
+                onChange={handleChange}
+              />
+              <span>Male</span>
+            </label>
+            <label className="auth-form__gender-option">
+              <input
+                type="radio"
+                name="gender"
+                value="female"
+                checked={form.gender === "female"}
+                onChange={handleChange}
+              />
+              <span>Female</span>
+            </label>
+          </div>
+        </fieldset>
 
         <Button type="submit" size="lg" fullWidth disabled={loading}>
           {loading ? "Saving…" : "Save changes"}

@@ -1,16 +1,9 @@
 from rest_framework import serializers
 
 from accounts.models import Profile
+from accounts.serializers import ProfileBasicSerializer
 from .models import Room, RoomParticipant
 from .services import participant_count
-
-
-class ProfileBasicSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ("id", "display_name", "username", "avatar_url")
-
-    id = serializers.IntegerField(source="user_id", read_only=True)
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
@@ -18,10 +11,21 @@ class ParticipantSerializer(serializers.ModelSerializer):
     display_name = serializers.CharField(source="user.profile.display_name", read_only=True)
     username = serializers.CharField(source="user.profile.username", read_only=True)
     avatar_url = serializers.CharField(source="user.profile.avatar_url", read_only=True)
+    gender = serializers.CharField(source="user.profile.gender", read_only=True)
+    avatar_key = serializers.CharField(source="user.profile.avatar_key", read_only=True)
 
     class Meta:
         model = RoomParticipant
-        fields = ("id", "display_name", "username", "avatar_url", "role", "is_muted")
+        fields = (
+            "id",
+            "display_name",
+            "username",
+            "avatar_url",
+            "gender",
+            "avatar_key",
+            "role",
+            "is_muted",
+        )
 
 
 class RoomSerializer(serializers.ModelSerializer):

@@ -24,6 +24,7 @@ class RoomCostControlTests(APITestCase):
                 "email": "costhost@example.com",
                 "password": "securepass123",
                 "display_name": "Cost Host",
+                "gender": "male",
             },
             format="json",
         )
@@ -37,6 +38,7 @@ class RoomCostControlTests(APITestCase):
                     "email": f"guest{index}@example.com",
                     "password": "securepass123",
                     "display_name": f"Guest {index}",
+                    "gender": "female" if index % 2 else "male",
                 },
                 format="json",
             )

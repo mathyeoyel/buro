@@ -22,6 +22,7 @@ class ChatReactionAPITests(APITestCase):
                 "email": "chathost@example.com",
                 "password": "securepass123",
                 "display_name": "Chat Host",
+                "gender": "male",
             },
             format="json",
         )
@@ -34,6 +35,7 @@ class ChatReactionAPITests(APITestCase):
                 "email": "chatguest@example.com",
                 "password": "securepass123",
                 "display_name": "Chat Guest",
+                "gender": "female",
             },
             format="json",
         )
@@ -106,6 +108,7 @@ class ChatReactionAPITests(APITestCase):
                 "email": "outsider@example.com",
                 "password": "securepass123",
                 "display_name": "Outsider",
+                "gender": "male",
             },
             format="json",
         )
@@ -165,6 +168,7 @@ class ChatReactionAPITests(APITestCase):
                 "email": "reactoutsider@example.com",
                 "password": "securepass123",
                 "display_name": "React Outsider",
+                "gender": "male",
             },
             format="json",
         )

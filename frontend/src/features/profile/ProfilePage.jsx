@@ -17,11 +17,7 @@ export default function ProfilePage() {
   return (
     <div className="profile-page">
       <div className="profile-page__hero">
-        <Avatar
-          name={profile?.display_name}
-          src={profile?.avatar_url || null}
-          size="lg"
-        />
+        <Avatar name={profile?.display_name} profile={profile} size="lg" />
         <h1 className="profile-page__name">{profile?.display_name}</h1>
         <p className="profile-page__username">@{profile?.username}</p>
         {profile?.bio && <p className="profile-page__bio">{profile.bio}</p>}

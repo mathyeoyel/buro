@@ -26,7 +26,7 @@ export default function HomeAvatarStack({ host, count = 0, max = 4 }) {
         <Avatar
           className="home-stack__avatar"
           name={host?.display_name}
-          src={host?.avatar_url || null}
+          profile={host}
           size="sm"
         />
         {Array.from({ length: visiblePlaceholders }).map((_, index) => (

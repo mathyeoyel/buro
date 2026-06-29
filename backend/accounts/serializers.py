@@ -2,10 +2,19 @@ from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
+from .avatar import assign_avatar_key
 from .models import Profile
 from .utils import generate_unique_username
 
 User = get_user_model()
+
+
+class ProfileBasicSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source="user_id", read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ("id", "display_name", "username", "avatar_url", "gender", "avatar_key")
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -14,18 +23,31 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             "display_name",
             "username",
+            "gender",
+            "avatar_key",
             "avatar_url",
             "bio",
             "created_at",
             "updated_at",
         )
-        read_only_fields = ("username", "created_at", "updated_at")
+        read_only_fields = ("username", "avatar_key", "created_at", "updated_at")
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
+    gender = serializers.ChoiceField(choices=Profile.Gender.choices, required=False)
+
     class Meta:
         model = Profile
-        fields = ("display_name", "avatar_url", "bio")
+        fields = ("display_name", "avatar_url", "bio", "gender")
+
+    def update(self, instance, validated_data):
+        previous_gender = instance.gender
+        instance = super().update(instance, validated_data)
+        new_gender = validated_data.get("gender")
+        if new_gender and new_gender != previous_gender:
+            instance.avatar_key = assign_avatar_key(new_gender, instance.user_id)
+            instance.save(update_fields=["avatar_key"])
+        return instance
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,6 +63,7 @@ class SignupSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
     display_name = serializers.CharField(max_length=100)
+    gender = serializers.ChoiceField(choices=Profile.Gender.choices)
     username = serializers.CharField(max_length=50, required=False, allow_blank=True)
 
     def validate_email(self, value):
@@ -56,6 +79,7 @@ class SignupSerializer(serializers.Serializer):
         email = validated_data["email"]
         password = validated_data["password"]
         display_name = validated_data["display_name"].strip()
+        gender = validated_data["gender"]
         preferred_username = validated_data.get("username", "").strip() or None
         username = generate_unique_username(display_name, preferred_username)
 
@@ -68,7 +92,11 @@ class SignupSerializer(serializers.Serializer):
             user=user,
             display_name=display_name,
             username=username,
+            gender=gender,
         )
+        if not profile.avatar_url:
+            profile.avatar_key = assign_avatar_key(gender, user.id)
+            profile.save(update_fields=["avatar_key"])
         return user, profile
 
 

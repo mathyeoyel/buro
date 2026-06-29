@@ -16,8 +16,13 @@ export function storeToken(token) {
   }
 }
 
-export async function signup({ email, password, display_name }) {
-  const response = await api.post("/auth/signup/", { email, password, display_name });
+export async function signup({ email, password, display_name, gender }) {
+  const response = await api.post("/auth/signup/", {
+    email,
+    password,
+    display_name,
+    gender,
+  });
   return response.data;
 }
 
@@ -46,14 +51,39 @@ export async function updateProfile(payload) {
   return response.data.profile;
 }
 
+const FIELD_LABELS = {
+  email: "Email",
+  password: "Password",
+  display_name: "Display name",
+  gender: "Gender",
+  non_field_errors: "",
+};
+
+function firstFieldError(data, key) {
+  const value = data[key];
+  const message = Array.isArray(value) ? value[0] : value;
+  if (typeof message !== "string") return null;
+  const label = FIELD_LABELS[key] ?? key;
+  return label ? `${label}: ${message}` : message;
+}
+
 export function extractErrorMessage(error) {
   const data = error?.response?.data;
   if (!data) return "Something went wrong. Try again.";
   if (typeof data.detail === "string") return data.detail;
-  if (data.email?.[0]) return data.email[0];
-  if (data.password?.[0]) return data.password[0];
-  if (data.display_name?.[0]) return data.display_name[0];
+
+  const priority = ["gender", "email", "password", "display_name", "non_field_errors"];
+  for (const key of priority) {
+    if (data[key]) {
+      const message = firstFieldError(data, key);
+      if (message) return message;
+    }
+  }
+
   const firstKey = Object.keys(data)[0];
-  if (firstKey && Array.isArray(data[firstKey])) return data[firstKey][0];
+  if (firstKey) {
+    const message = firstFieldError(data, firstKey);
+    if (message) return message;
+  }
   return "Something went wrong. Try again.";
 }

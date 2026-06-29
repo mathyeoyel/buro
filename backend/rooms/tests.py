@@ -23,6 +23,7 @@ class RoomAPITests(APITestCase):
                 "email": "host@example.com",
                 "password": "securepass123",
                 "display_name": "Amina K",
+                "gender": "female",
             },
             format="json",
         )
@@ -35,6 +36,7 @@ class RoomAPITests(APITestCase):
                 "email": "guest@example.com",
                 "password": "securepass123",
                 "display_name": "Deng M",
+                "gender": "male",
             },
             format="json",
         )
@@ -200,6 +202,7 @@ class RoomWebSocketTests(TransactionTestCase):
                 "email": f"wshost-{suffix}@example.com",
                 "password": "securepass123",
                 "display_name": "WS Host",
+                "gender": "male",
             },
             format="json",
         )

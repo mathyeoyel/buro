@@ -24,6 +24,7 @@ class AudioProviderTests(APITestCase):
                 "email": "audiohost@example.com",
                 "password": "securepass123",
                 "display_name": "Audio Host",
+                "gender": "male",
             },
             format="json",
         )
@@ -36,6 +37,7 @@ class AudioProviderTests(APITestCase):
                 "email": "audioguest@example.com",
                 "password": "securepass123",
                 "display_name": "Audio Guest",
+                "gender": "female",
             },
             format="json",
         )
@@ -74,6 +76,7 @@ class AudioProviderTests(APITestCase):
                 "email": "audiooutsider@example.com",
                 "password": "securepass123",
                 "display_name": "Audio Outsider",
+                "gender": "male",
             },
             format="json",
         )

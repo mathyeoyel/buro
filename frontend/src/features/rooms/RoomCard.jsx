@@ -31,11 +31,7 @@ export default function RoomCard({ room, onJoin }) {
       </div>
 
       <div className="room-card__head">
-        <Avatar
-          name={room.host?.display_name}
-          src={room.host?.avatar_url || null}
-          size="md"
-        />
+        <Avatar name={room.host?.display_name} profile={room.host} size="md" />
         <div className="room-card__heading">
           <h3 className="room-card__title">{room.title}</h3>
           <p className="room-card__category">{room.category}</p>

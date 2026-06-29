@@ -17,7 +17,7 @@ class SafetyModerationTests(APITestCase):
         def signup(email, name):
             response = self.client.post(
                 self.signup_url,
-                {"email": email, "password": "securepass123", "display_name": name},
+                {"email": email, "password": "securepass123", "display_name": name, "gender": "male"},
                 format="json",
             )
             return response.data["token"], User.objects.get(email=email)

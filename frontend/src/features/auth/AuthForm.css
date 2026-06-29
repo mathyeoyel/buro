@@ -52,3 +52,62 @@
 .auth-form__footer a:hover {
   text-decoration: underline;
 }
+
+.auth-form__gender {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.auth-form__gender-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.auth-form__gender-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.auth-form__gender-options {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.auth-form__gender-option {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  min-height: var(--touch-target-min);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.auth-form__gender-option:has(input:checked) {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text-primary);
+}
+
+.auth-form__gender-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.auth-form__avatar-preview {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-sm) 0;
+}

@@ -637,7 +637,7 @@ export default function LiveRoomPage() {
       <div className="live-room__host">
         <Avatar
           name={room.host?.display_name}
-          src={room.host?.avatar_url || null}
+          profile={room.host}
           size="md"
         />
         <div className="live-room__host-info">
@@ -656,7 +656,7 @@ export default function LiveRoomPage() {
               return (
                 <div key={p.id} className="live-room__person">
                   <div className="live-room__person-avatar">
-                    <Avatar name={p.display_name} src={p.avatar_url || null} size="md" />
+                    <Avatar name={p.display_name} profile={p} size="md" />
                     <span
                       className={`live-room__person-status live-room__person-status--${
                         p.is_muted ? "muted" : "live"

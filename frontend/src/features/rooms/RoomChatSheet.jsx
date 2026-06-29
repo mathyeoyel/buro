@@ -40,11 +40,7 @@ export default function RoomChatSheet({
         ) : (
           messages.map((message) => (
             <div key={message.id} className="room-chat__message">
-              <Avatar
-                name={message.sender?.display_name}
-                src={message.sender?.avatar_url || null}
-                size="sm"
-              />
+              <Avatar name={message.sender?.display_name} profile={message.sender} size="sm" />
               <div className="room-chat__bubble">
                 <span className="room-chat__sender">{message.sender?.display_name}</span>
                 <p className="room-chat__body">{message.body}</p>

@@ -1,18 +1,10 @@
 from rest_framework import serializers
 
-from accounts.models import Profile
+from accounts.serializers import ProfileBasicSerializer
 
 from .models import RoomMessage
 
 MAX_MESSAGE_LENGTH = 280
-
-
-class ProfileBasicSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source="user_id", read_only=True)
-
-    class Meta:
-        model = Profile
-        fields = ("id", "display_name", "username", "avatar_url")
 
 
 class RoomMessageSerializer(serializers.ModelSerializer):

@@ -71,11 +71,7 @@ export default function StartRoomSheet({ open, onClose, onCreated }) {
         {error && <p className="rooms-page__error">{error}</p>}
 
         <div className="start-room-sheet__row">
-          <Avatar
-            name={profile?.display_name}
-            src={profile?.avatar_url || null}
-            size="md"
-          />
+          <Avatar name={profile?.display_name} profile={profile} size="md" />
 
           <div className="start-room-sheet__center">
             {titleOpen ? (
