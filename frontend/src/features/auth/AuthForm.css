@@ -107,6 +107,18 @@
   padding: var(--space-sm) 0;
 }
 
+.auth-form__avatar-preview-img {
+  border: 2px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-form__optional {
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-muted);
+}
+
 .auth-form__avatar-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;

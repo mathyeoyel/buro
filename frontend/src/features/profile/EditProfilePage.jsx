@@ -40,14 +40,19 @@ export default function EditProfilePage() {
     <div className="auth-page">
       <div className="auth-page__header">
         <h1 className="auth-page__title">Edit profile</h1>
-        <p className="auth-page__subtitle">Keep it simple. Just the basics.</p>
+        <p className="auth-page__subtitle">Shape your Buro identity.</p>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>
         {error && <p className="auth-form__error">{error}</p>}
 
         <div className="auth-form__avatar-preview">
-          <Avatar name={form.display_name} profile={previewProfile} size="lg" />
+          <Avatar
+            name={form.display_name}
+            profile={previewProfile}
+            size="lg"
+            className="auth-form__avatar-preview-img"
+          />
         </div>
 
         <Input
@@ -57,49 +62,69 @@ export default function EditProfilePage() {
           onChange={handleChange}
           required
         />
+
+        <fieldset className="auth-form__gender">
+          <legend className="auth-form__gender-label">Gender</legend>
+          <div className="auth-form__avatar-cards">
+            <button
+              type="button"
+              className={[
+                "auth-form__avatar-card",
+                form.gender === "male" ? "is-selected" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-pressed={form.gender === "male"}
+              onClick={() => setForm((prev) => ({ ...prev, gender: "male" }))}
+            >
+              <img
+                className="auth-form__avatar-card-img"
+                src="/avatars/male/male_01.svg"
+                alt=""
+                aria-hidden="true"
+              />
+              <span className="auth-form__avatar-card-label">Male</span>
+            </button>
+            <button
+              type="button"
+              className={[
+                "auth-form__avatar-card",
+                form.gender === "female" ? "is-selected" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-pressed={form.gender === "female"}
+              onClick={() => setForm((prev) => ({ ...prev, gender: "female" }))}
+            >
+              <img
+                className="auth-form__avatar-card-img"
+                src="/avatars/female/female_01.svg"
+                alt=""
+                aria-hidden="true"
+              />
+              <span className="auth-form__avatar-card-label">Female</span>
+            </button>
+          </div>
+        </fieldset>
+
         <Input
           label="Bio"
           name="bio"
           value={form.bio}
           onChange={handleChange}
           placeholder="Say something about yourself"
-          hint="Optional — keep it short."
-        />
-        <Input
-          label="Avatar URL"
-          name="avatar_url"
-          type="url"
-          value={form.avatar_url}
-          onChange={handleChange}
-          placeholder="https://…"
-          hint="Optional — paste an image link."
         />
 
-        <fieldset className="auth-form__gender">
-          <legend className="auth-form__gender-label">Gender</legend>
-          <div className="auth-form__gender-options">
-            <label className="auth-form__gender-option">
-              <input
-                type="radio"
-                name="gender"
-                value="male"
-                checked={form.gender === "male"}
-                onChange={handleChange}
-              />
-              <span>Male</span>
-            </label>
-            <label className="auth-form__gender-option">
-              <input
-                type="radio"
-                name="gender"
-                value="female"
-                checked={form.gender === "female"}
-                onChange={handleChange}
-              />
-              <span>Female</span>
-            </label>
-          </div>
-        </fieldset>
+        <div className="auth-form__optional">
+          <Input
+            label="Avatar URL"
+            name="avatar_url"
+            type="url"
+            value={form.avatar_url}
+            onChange={handleChange}
+            placeholder="https://…"
+          />
+        </div>
 
         <Button type="submit" size="lg" fullWidth disabled={loading}>
           {loading ? "Saving…" : "Save changes"}
