@@ -106,3 +106,47 @@
   justify-content: center;
   padding: var(--space-sm) 0;
 }
+
+.auth-form__avatar-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.auth-form__avatar-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.auth-form__avatar-card:active {
+  transform: scale(0.98);
+}
+
+.auth-form__avatar-card.is-selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text-primary);
+}
+
+.auth-form__avatar-card-img {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-base);
+  object-fit: cover;
+}
+
+.auth-form__avatar-card-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}

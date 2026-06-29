@@ -71,27 +71,45 @@ export default function SignupPage() {
 
         <fieldset className="auth-form__gender">
           <legend className="auth-form__gender-label">Gender</legend>
-          <div className="auth-form__gender-options">
-            <label className="auth-form__gender-option">
-              <input
-                type="radio"
-                name="gender"
-                value="male"
-                checked={form.gender === "male"}
-                onChange={handleChange}
+          <div className="auth-form__avatar-cards">
+            <button
+              type="button"
+              className={[
+                "auth-form__avatar-card",
+                form.gender === "male" ? "is-selected" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-pressed={form.gender === "male"}
+              onClick={() => setForm((prev) => ({ ...prev, gender: "male" }))}
+            >
+              <img
+                className="auth-form__avatar-card-img"
+                src="/avatars/male/male_01.svg"
+                alt=""
+                aria-hidden="true"
               />
-              <span>Male</span>
-            </label>
-            <label className="auth-form__gender-option">
-              <input
-                type="radio"
-                name="gender"
-                value="female"
-                checked={form.gender === "female"}
-                onChange={handleChange}
+              <span className="auth-form__avatar-card-label">Male</span>
+            </button>
+            <button
+              type="button"
+              className={[
+                "auth-form__avatar-card",
+                form.gender === "female" ? "is-selected" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-pressed={form.gender === "female"}
+              onClick={() => setForm((prev) => ({ ...prev, gender: "female" }))}
+            >
+              <img
+                className="auth-form__avatar-card-img"
+                src="/avatars/female/female_01.svg"
+                alt=""
+                aria-hidden="true"
               />
-              <span>Female</span>
-            </label>
+              <span className="auth-form__avatar-card-label">Female</span>
+            </button>
           </div>
         </fieldset>
 
