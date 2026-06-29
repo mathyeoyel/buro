@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
-import { AppShell, MobileShell, BottomNavigation, Icon } from "../components";
+import { AppShell, Avatar, MobileShell, BottomNavigation, Icon } from "../components";
+import { useAuth } from "../context/AuthContext";
 import ProtectedRoute, { GuestRoute } from "../components/auth/ProtectedRoute";
 import StaffRoute from "../components/auth/StaffRoute";
 import SignupPage from "../features/auth/SignupPage";
@@ -12,7 +13,7 @@ import LiveRoomPage from "../features/rooms/LiveRoomPage";
 import AdminReportsPage from "../features/admin/AdminReportsPage";
 import AdminLiveRoomsPage from "../features/admin/AdminLiveRoomsPage";
 
-function getNavItems(pathname) {
+function getNavItems(pathname, profile) {
   return [
     {
       id: "rooms",
@@ -20,11 +21,24 @@ function getNavItems(pathname) {
       icon: <Icon name="rooms" />,
       active: pathname === "/rooms",
     },
-    { id: "start", label: "Start", icon: <Icon name="start" />, active: false },
+    {
+      id: "start",
+      label: "Start",
+      icon: <Icon name="start" />,
+      emphasized: true,
+      active: false,
+    },
     {
       id: "profile",
       label: "You",
-      icon: <Icon name="profile" />,
+      icon: (
+        <Avatar
+          name={profile?.display_name}
+          profile={profile}
+          size="sm"
+          className="buro-bottomnav__avatar"
+        />
+      ),
       active: pathname.startsWith("/profile"),
     },
   ];
@@ -33,7 +47,11 @@ function getNavItems(pathname) {
 function AuthenticatedLayout({ children, showBottomNav = true }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const navItems = useMemo(() => getNavItems(location.pathname), [location.pathname]);
+  const { profile } = useAuth();
+  const navItems = useMemo(
+    () => getNavItems(location.pathname, profile),
+    [location.pathname, profile]
+  );
 
   const handleNavSelect = (id) => {
     if (id === "rooms") {

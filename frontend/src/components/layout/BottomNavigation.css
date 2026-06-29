@@ -13,7 +13,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
+  min-height: var(--touch-target-min);
   border: none;
   background: transparent;
   color: var(--color-text-muted);
@@ -36,4 +37,29 @@
 .buro-bottomnav__label {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
+}
+
+/* Emphasized Start action — slightly raised warm circle */
+.buro-bottomnav__item.is-emphasized .buro-bottomnav__icon {
+  width: 46px;
+  height: 46px;
+  margin-top: -18px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-charcoal);
+  border: 3px solid var(--color-nav-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+.buro-bottomnav__item.is-emphasized:active .buro-bottomnav__icon {
+  transform: scale(0.95);
+}
+
+/* You avatar */
+.buro-bottomnav__avatar {
+  border: 2px solid transparent;
+}
+
+.buro-bottomnav__item.is-active .buro-bottomnav__avatar {
+  border-color: var(--color-primary);
 }

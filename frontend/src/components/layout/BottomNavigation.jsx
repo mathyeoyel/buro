@@ -12,10 +12,15 @@ export default function BottomNavigation({ items = [], onSelect }) {
         <button
           key={item.id}
           type="button"
-          className={["buro-bottomnav__item", item.active ? "is-active" : ""]
+          className={[
+            "buro-bottomnav__item",
+            item.active ? "is-active" : "",
+            item.emphasized ? "is-emphasized" : "",
+          ]
             .filter(Boolean)
             .join(" ")}
           aria-current={item.active ? "page" : undefined}
+          aria-label={item.label}
           onClick={() => onSelect?.(item.id)}
         >
           <span className="buro-bottomnav__icon" aria-hidden="true">

@@ -8,14 +8,15 @@
 const PATHS = {
   rooms: (
     <>
-      <path d="M4 5h11a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3H9l-4 3v-3a3 3 0 0 1-3-3V8" />
-      <path d="M8 9h6M8 12h4" />
+      <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-7l-4 3v-3H6a2 2 0 0 1-2-2V6Z" />
+      <path d="M9 8.5v4M12 7.5v6M15 8.5v4" />
     </>
   ),
   start: (
     <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 8v8M8 12h8" />
+      <circle cx="12" cy="12" r="2.5" />
+      <path d="M7.5 7.5a6 6 0 0 0 0 9M16.5 7.5a6 6 0 0 1 0 9" />
+      <path d="M4.5 4.5a10 10 0 0 0 0 15M19.5 4.5a10 10 0 0 1 0 15" />
     </>
   ),
   profile: (
