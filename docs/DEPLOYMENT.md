@@ -334,6 +334,96 @@ Before considering a deploy usable:
 14. Host ends room.
 15. Confirm ended room disappears from live list.
 
+## Staging Runtime Configuration
+
+This section documents the concrete staging setup implemented for blockers B1–B4. Use temporary host URLs only; do not reference `buro.ss`.
+
+### Backend settings module
+
+Set on the web service **and** the scheduled cleanup job:
+
+```text
+DJANGO_SETTINGS_MODULE=config.settings.production
+DJANGO_DEBUG=False
+```
+
+The same `config.settings.production` module is used for staging and future production; only the env-var values differ.
+
+### Backend build command
+
+```bash
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py collectstatic --noinput
+```
+
+### Backend start command (ASGI — required for WebSockets)
+
+Buro uses Django Channels, so it must run under an ASGI server. Do **not** use plain Gunicorn (sync WSGI) — it cannot serve WebSockets.
+
+```bash
+daphne -b 0.0.0.0 -p $PORT config.asgi:application
+```
+
+### B1 — Static files (admin assets)
+
+- WhiteNoise serves static files when `DEBUG=False`.
+- `whitenoise.middleware.WhiteNoiseMiddleware` runs immediately after `SecurityMiddleware`.
+- `STATIC_ROOT = backend/staticfiles`.
+- Production uses `STORAGES["staticfiles"] = whitenoise.storage.CompressedManifestStaticFilesStorage`.
+- Run `python manage.py collectstatic --noinput` during the build so Django admin renders correctly.
+
+### B2 — HTTPS proxy + CSRF for admin
+
+`config/settings/production.py` sets:
+
+- `SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")` so Django trusts the proxy's forwarded scheme.
+- `CSRF_TRUSTED_ORIGINS` parsed from `DJANGO_CSRF_TRUSTED_ORIGINS`.
+- `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, `CSRF_TRUSTED_ORIGINS` are parsed with empty entries stripped (no invalid `[""]`).
+
+Required env vars:
+
+```text
+DJANGO_ALLOWED_HOSTS=<your-backend-host>
+DJANGO_CORS_ALLOWED_ORIGINS=https://<your-frontend-host>
+DJANGO_CSRF_TRUSTED_ORIGINS=https://<your-backend-host>,https://<your-frontend-host>
+```
+
+### B3 — SPA deep-link fallback
+
+The frontend uses `BrowserRouter`, so deep links like `/rooms/123` and `/profile/edit` must serve `index.html` (otherwise refresh/direct-open returns 404). Static asset requests must NOT be rewritten.
+
+Configure on the chosen static host:
+
+- **Render Static Site:** add a Redirect/Rewrite rule in the dashboard:
+  - Source: `/*`
+  - Destination: `/index.html`
+  - Action: `Rewrite`
+  Render serves existing static files first, so hashed assets in `/assets/*` keep working.
+- **Vercel:** add `frontend/vercel.json`:
+  ```json
+  { "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+  ```
+- **Netlify:** add `frontend/public/_redirects`:
+  ```text
+  /*  /index.html  200
+  ```
+
+A generic config file is intentionally NOT committed because the rewrite format depends on the host; pick the one matching your target. Frontend publish directory: `frontend/dist`.
+
+### B4 — Room cleanup scheduler
+
+`python manage.py cleanup_rooms` ends expired and empty rooms (idempotent). It must **not** run inside the Daphne web process — run it as a separate scheduled job using the **same backend environment variables** as the web service (DB, Redis, room limits, settings module).
+
+Recommended staging schedule: **every 5 minutes**.
+
+```bash
+python manage.py cleanup_rooms
+```
+
+- **Render:** add a Cron Job service with schedule `*/5 * * * *` and the cleanup command, sharing the web service's env group.
+- **Generic cron:** `*/5 * * * * cd /app/backend && python manage.py cleanup_rooms`
+
 ## Known MVP Tradeoffs
 
 - `buro.ss` is planned but not registered; staging uses temporary host URLs first.
