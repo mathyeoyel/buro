@@ -211,3 +211,59 @@ class AuthAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["profile"]["gender"], "")
         self.assertEqual(response.data["profile"]["avatar_key"], "")
+
+    def test_legacy_profile_can_set_gender_male(self):
+        user = User.objects.create_user(
+            username="legacymale",
+            email="legacymale@example.com",
+            password="securepass123",
+        )
+        Profile.objects.create(
+            user=user,
+            display_name="Legacy Male",
+            username="legacymale",
+        )
+        token, _created = Token.objects.get_or_create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+
+        response = self.client.patch(
+            self.profile_url,
+            {"gender": "male"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["profile"]["gender"], "male")
+        self.assertTrue(response.data["profile"]["avatar_key"].startswith("male_"))
+        self.assertEqual(
+            response.data["profile"]["avatar_key"],
+            assign_avatar_key("male", user.id),
+        )
+
+    def test_legacy_profile_can_set_gender_female(self):
+        user = User.objects.create_user(
+            username="legacyfemale",
+            email="legacyfemale@example.com",
+            password="securepass123",
+        )
+        Profile.objects.create(
+            user=user,
+            display_name="Legacy Female",
+            username="legacyfemale",
+        )
+        token, _created = Token.objects.get_or_create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+
+        response = self.client.patch(
+            self.profile_url,
+            {"gender": "female"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["profile"]["gender"], "female")
+        self.assertTrue(response.data["profile"]["avatar_key"].startswith("female_"))
+        self.assertEqual(
+            response.data["profile"]["avatar_key"],
+            assign_avatar_key("female", user.id),
+        )

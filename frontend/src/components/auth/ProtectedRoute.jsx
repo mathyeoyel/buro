@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import LoadingState from "../ui/LoadingState";
 import { useAuth } from "../../context/AuthContext";
+import ProfileSetupGate from "../../features/profile/ProfileSetupGate";
 
 export default function ProtectedRoute({ children }) {
   const { isAuthenticated, initializing } = useAuth();
@@ -14,7 +15,7 @@ export default function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  return children;
+  return <ProfileSetupGate>{children}</ProfileSetupGate>;
 }
 
 export function GuestRoute({ children }) {
