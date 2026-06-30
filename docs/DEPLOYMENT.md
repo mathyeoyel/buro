@@ -365,6 +365,22 @@ Buro uses Django Channels, so it must run under an ASGI server. Do **not** use p
 daphne -b 0.0.0.0 -p $PORT config.asgi:application
 ```
 
+### Channel layer (WebSockets) — staging vs production
+
+Django Channels needs a channel layer to broadcast room events between connections. It is selected with `CHANNEL_LAYER_BACKEND` (production settings):
+
+- `CHANNEL_LAYER_BACKEND=memory` — `InMemoryChannelLayer`. Use for **free Render staging**, which runs a single Daphne process. This avoids the free Upstash Redis `TimeoutError`s seen during room WebSocket activity.
+- `CHANNEL_LAYER_BACKEND=redis` — `channels_redis` using `REDIS_URL`. Use for **production / paid hosting** with multiple processes or instances.
+
+Default: `redis` when `REDIS_URL` is set, otherwise `memory`. When `redis` is selected, `REDIS_URL` is required.
+
+Memory is acceptable for staging because:
+
+- Render free runs exactly one Daphne process, so all WebSocket connections share the same in-process layer.
+- It is **not** suitable for multi-instance/multi-worker production — each process would have an isolated layer and room events would not broadcast across them. Use Redis/Valkey there.
+
+Redis support is kept intact; switching back is just `CHANNEL_LAYER_BACKEND=redis` with a working `REDIS_URL`.
+
 ### Frontend build command (Cloudflare Pages)
 
 Vite env vars (`VITE_API_BASE_URL`, `VITE_WS_BASE_URL`) are **build-time** — they are baked into the bundle when `vite build` runs. If they are missing or still point to `localhost` at build time, the deployed app silently connects to `ws://localhost:8000` and live rooms break.

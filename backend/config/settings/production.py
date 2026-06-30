@@ -40,12 +40,33 @@ DATABASES["default"] = dj_database_url.config(  # noqa: F405
     conn_max_age=600,
 )
 
-if not os.environ.get("REDIS_URL"):  # noqa: F405
-    raise ValueError("REDIS_URL is required in production settings.")
+# Channel layer selector.
+#
+# - "redis": multi-process / multi-instance safe (production, paid hosting).
+# - "memory": single-process only. Use for free Render staging where a single
+#   Daphne process runs and Upstash free Redis causes timeout errors.
+#
+# Defaults to redis when REDIS_URL is set, otherwise memory.
+CHANNEL_LAYER_BACKEND = os.environ.get(  # noqa: F405
+    "CHANNEL_LAYER_BACKEND",
+    "redis" if os.environ.get("REDIS_URL") else "memory",  # noqa: F405
+).strip().lower()
 
-CHANNEL_LAYERS = {  # noqa: F405
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {"hosts": [os.environ["REDIS_URL"]]},  # noqa: F405
+if CHANNEL_LAYER_BACKEND == "memory":
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        }
     }
-}
+else:
+    if not os.environ.get("REDIS_URL"):  # noqa: F405
+        raise ValueError(
+            "REDIS_URL is required when CHANNEL_LAYER_BACKEND=redis. "
+            "Set CHANNEL_LAYER_BACKEND=memory for single-process staging."
+        )
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {"hosts": [os.environ["REDIS_URL"]]},  # noqa: F405
+        }
+    }
