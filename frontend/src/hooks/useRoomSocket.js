@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { getStoredToken } from "../services/auth";
+import { WS_BASE_URL } from "../config/env";
 
-const WS_BASE = import.meta.env.VITE_WS_BASE_URL || "ws://localhost:8000";
 const RECONNECT_MS = 3000;
 
 /**
@@ -42,7 +42,7 @@ export function useRoomSocket(roomId, { enabled = true, onEvent } = {}) {
     disconnect();
     shouldReconnectRef.current = true;
 
-    const url = `${WS_BASE}/ws/rooms/${roomId}/?token=${encodeURIComponent(token)}`;
+    const url = `${WS_BASE_URL}/ws/rooms/${roomId}/?token=${encodeURIComponent(token)}`;
     const ws = new WebSocket(url);
     wsRef.current = ws;
 
