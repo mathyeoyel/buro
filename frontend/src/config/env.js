@@ -22,3 +22,11 @@ if (import.meta.env.DEV) {
   // Dev-only sanity check. Never logs tokens.
   console.debug("Buro env", { API_BASE_URL, WS_BASE_URL });
 }
+
+// TEMPORARY (remove after staging WS is verified): one-time startup log so we can
+// confirm the deployed bundle uses the real backend URLs, not localhost.
+// Safe — these are public endpoints, never auth tokens.
+console.info("Buro runtime env", {
+  apiBaseUrl: API_BASE_URL,
+  wsBaseUrl: WS_BASE_URL,
+});

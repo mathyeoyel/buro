@@ -365,6 +365,39 @@ Buro uses Django Channels, so it must run under an ASGI server. Do **not** use p
 daphne -b 0.0.0.0 -p $PORT config.asgi:application
 ```
 
+### Frontend build command (Cloudflare Pages)
+
+Vite env vars (`VITE_API_BASE_URL`, `VITE_WS_BASE_URL`) are **build-time** — they are baked into the bundle when `vite build` runs. If they are missing or still point to `localhost` at build time, the deployed app silently connects to `ws://localhost:8000` and live rooms break.
+
+Use this build command so the build **fails loudly** when env vars are missing/wrong:
+
+```bash
+npm ci && npm run verify:env && npm run build
+```
+
+`verify:env` (runs `frontend/scripts/verify-env.mjs`) enforces:
+
+- `VITE_API_BASE_URL` and `VITE_WS_BASE_URL` must be set.
+- Neither may contain `localhost`.
+- `VITE_API_BASE_URL` must start with `https://`.
+- `VITE_WS_BASE_URL` must start with `wss://`.
+
+Cloudflare Pages settings:
+
+- Build command: `npm ci && npm run verify:env && npm run build`
+- Build output directory: `frontend/dist`
+- Root directory: `frontend`
+- Production environment variables:
+  - `VITE_API_BASE_URL=https://<your-backend-host>/api`
+  - `VITE_WS_BASE_URL=wss://<your-backend-host>`
+
+Important:
+
+- Vite env vars are build-time, not runtime — changing them in the dashboard does **not** affect an existing deployment.
+- After changing variables, **trigger a fresh deploy/rebuild** so the bundle picks them up.
+- Set the variables under the **Production** environment (Preview deployments use their own env).
+- Hard-refresh the browser after deploy to clear the old cached bundle.
+
 ### B1 — Static files (admin assets)
 
 - WhiteNoise serves static files when `DEBUG=False`.

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "verify:env": "node scripts/verify-env.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
