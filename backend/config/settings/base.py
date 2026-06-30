@@ -124,3 +124,6 @@ AUDIO_PROVIDER = os.environ.get("AUDIO_PROVIDER", "mock")
 AGORA_APP_ID = os.environ.get("AGORA_APP_ID", "")
 AGORA_APP_CERTIFICATE = os.environ.get("AGORA_APP_CERTIFICATE", "")
 AGORA_TOKEN_EXPIRES_IN = int(os.environ.get("AGORA_TOKEN_EXPIRES_IN", "3600"))
+
+# Internal scheduler token for POST /api/internal/cleanup-rooms/ (staging cron).
+INTERNAL_CLEANUP_TOKEN = os.environ.get("INTERNAL_CLEANUP_TOKEN", "")

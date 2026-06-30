@@ -413,16 +413,58 @@ A generic config file is intentionally NOT committed because the rewrite format 
 
 ### B4 — Room cleanup scheduler
 
-`python manage.py cleanup_rooms` ends expired and empty rooms (idempotent). It must **not** run inside the Daphne web process — run it as a separate scheduled job using the **same backend environment variables** as the web service (DB, Redis, room limits, settings module).
+`python manage.py cleanup_rooms` ends expired and empty rooms (idempotent). It must **not** run inside the Daphne web process.
 
 Recommended staging schedule: **every 5 minutes**.
+
+#### Option A — HTTP endpoint (free schedulers, e.g. cron-job.org)
+
+Set `INTERNAL_CLEANUP_TOKEN` on the Render web service to a strong random value, then configure an external scheduler to call:
+
+```text
+POST https://<your-backend-host>/api/internal/cleanup-rooms/
+Header: X-Buro-Cleanup-Token: <INTERNAL_CLEANUP_TOKEN>
+```
+
+If the scheduler cannot send custom headers, use a query param fallback:
+
+```text
+GET https://<your-backend-host>/api/internal/cleanup-rooms/?token=<INTERNAL_CLEANUP_TOKEN>
+```
+
+POST is preferred; GET is supported for simple cron compatibility.
+
+Response on success:
+
+```json
+{ "status": "ok", "ended_rooms": 0 }
+```
+
+Security:
+
+- Missing or invalid token → `403 Forbidden`
+- `INTERNAL_CLEANUP_TOKEN` not configured → `503 Service Unavailable` (cleanup does not run)
+- Cleanup exception → `500` with a safe message (details logged server-side)
+
+Suggested cron-job.org settings:
+
+- URL: `https://<your-backend-host>/api/internal/cleanup-rooms/`
+- Method: `POST`
+- Header: `X-Buro-Cleanup-Token: <INTERNAL_CLEANUP_TOKEN>`
+- Schedule: every 5 minutes
+
+After deploy: test wrong token → `403`, correct token → `200`.
+
+#### Option B — Render Cron Job (paid / if available)
 
 ```bash
 python manage.py cleanup_rooms
 ```
 
-- **Render:** add a Cron Job service with schedule `*/5 * * * *` and the cleanup command, sharing the web service's env group.
-- **Generic cron:** `*/5 * * * * cd /app/backend && python manage.py cleanup_rooms`
+- Add a Cron Job service with schedule `*/5 * * * *` and the cleanup command, sharing the web service's env group.
+- Generic cron: `*/5 * * * * cd /app/backend && python manage.py cleanup_rooms`
+
+Both options call the same shared cleanup logic in `rooms.cleanup.cleanup_live_rooms`.
 
 ## Known MVP Tradeoffs
 
