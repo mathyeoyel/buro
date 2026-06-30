@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  enableRemoteAudio,
   isPermissionError,
   joinAgoraChannel,
   leaveAgoraChannel,
@@ -23,6 +24,7 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
   const [provider, setProvider] = useState(null);
   const [token, setToken] = useState(null);
   const [error, setError] = useState("");
+  const [remotePlaybackBlocked, setRemotePlaybackBlocked] = useState(false);
 
   const audioRef = useRef(null);
   const connectingRef = useRef(false);
@@ -40,6 +42,12 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
     setProvider(null);
     setToken(null);
     setError("");
+    setRemotePlaybackBlocked(false);
+  }, []);
+
+  const enableAudio = useCallback(() => {
+    enableRemoteAudio();
+    setRemotePlaybackBlocked(false);
   }, []);
 
   const handleConnectionState = useCallback((curState) => {
@@ -106,6 +114,7 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
           token: audio.token,
           uid: audio.uid,
           onConnectionStateChange: handleConnectionState,
+          onRemotePlaybackBlocked: () => setRemotePlaybackBlocked(true),
         });
 
         if (!enabledRef.current) {
@@ -159,7 +168,16 @@ export function useAudioRoom(roomId, { enabled = false, isMuted = true } = {}) {
     syncMicState(isMuted);
   }, [isMuted, provider, status, syncMicState]);
 
-  return { status, provider, token, error, disconnect, retryMic };
+  return {
+    status,
+    provider,
+    token,
+    error,
+    disconnect,
+    retryMic,
+    remotePlaybackBlocked,
+    enableAudio,
+  };
 }
 
 function audioStatusLabel(status, provider) {

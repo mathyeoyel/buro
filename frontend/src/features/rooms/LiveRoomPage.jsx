@@ -274,6 +274,8 @@ export default function LiveRoomPage() {
     provider: audioProvider,
     disconnect: disconnectAudio,
     retryMic,
+    remotePlaybackBlocked,
+    enableAudio,
   } = useAudioRoom(roomId, {
     enabled: Boolean(room && isParticipant && isLive && !moderationOutcome),
     isMuted,
@@ -738,6 +740,11 @@ export default function LiveRoomPage() {
             {audioStatus === "permission_denied" && (
               <button type="button" className="live-room__audio-retry" onClick={retryMic}>
                 Allow mic
+              </button>
+            )}
+            {remotePlaybackBlocked && (
+              <button type="button" className="live-room__audio-retry" onClick={enableAudio}>
+                Tap to enable audio
               </button>
             )}
           </div>
